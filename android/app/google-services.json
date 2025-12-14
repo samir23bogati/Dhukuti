@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "909002447320",
+    "project_id": "dhukuti-1e030",
+    "storage_bucket": "dhukuti-1e030.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:909002447320:android:2a257c7a1e263235db7aad",
+        "android_client_info": {
+          "package_name": "com.example.dhukuti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1tooOKuYfgQeVa_mzIoqzN7hQevRa9Lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
