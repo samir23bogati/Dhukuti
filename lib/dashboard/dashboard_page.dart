@@ -2,11 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../routes/app_routes.dart';
+import '../services/price_service.dart';
 
-class DashboardPage extends StatelessWidget {
-  DashboardPage({super.key});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
-  final double todaySilverPrice = 3825.00; // NPR per tola (mock)
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final _priceService = PriceService();
+  late Future<double> _priceFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _priceFuture = _priceService.getSilverPrice();
+  }
+
+  void _refreshPrice() {
+    setState(() {
+      _priceFuture = _priceService.getSilverPrice();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +34,15 @@ class DashboardPage extends StatelessWidget {
         title: const Text("Dashboard"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshPrice,
+            tooltip: 'Refresh Price',
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              context.go(AppRoutes.login);
+              if (context.mounted) context.go(AppRoutes.login);
             },
           ),
         ],
@@ -42,13 +66,32 @@ class DashboardPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text("NPR / Tola", style: TextStyle(fontSize: 16)),
-                    Text(
-                      "Rs. $todaySilverPrice",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
+                    FutureBuilder<double>(
+                      future: _priceFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
+                        } else if (snapshot.hasError) {
+                          return const Text(
+                            "Error",
+                            style: TextStyle(color: Colors.red),
+                          );
+                        } else if (snapshot.hasData) {
+                          return Text(
+                            "Rs. ${snapshot.data}",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          );
+                        }
+                        return const Text("---");
+                      },
                     ),
                   ],
                 ),

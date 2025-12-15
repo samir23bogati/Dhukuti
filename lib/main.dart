@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'routes/app_router.dart';
@@ -16,17 +17,28 @@ void main() async {
   );
 }
 
-class DhukutiApp extends StatelessWidget {
+class DhukutiApp extends StatefulWidget {
   const DhukutiApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authState = context.watch<AuthState>();
-    final router = createRouter(authState);
+  State<DhukutiApp> createState() => _DhukutiAppState();
+}
 
+class _DhukutiAppState extends State<DhukutiApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AuthState>();
+    _router = createRouter(authState);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: router,
+      routerConfig: _router,
     );
   }
 }
