@@ -5,6 +5,7 @@ import 'package:dhukuti/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TradeTab extends StatefulWidget {
   const TradeTab({super.key});
@@ -59,7 +60,11 @@ class _TradeTabState extends State<TradeTab> {
         quantityTola: qty,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${type.name.toUpperCase()} Success!")));
+        String msg = "${type.name.toUpperCase()} Success!";
+        if (type == TransactionType.sell) {
+          msg += " (1% fee deducted)";
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         _quantityController.clear();
       }
     } catch (e) {
@@ -68,6 +73,20 @@ class _TradeTabState extends State<TradeTab> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _launchWhatsApp() async {
+    const phoneNumber = '+9779813629126';
+    const message = 'Hello,admin i want to buy sell Silver, i am here to inquiry about my buy/ sell Payments.';
+    final url = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}");
+    
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Could not launch WhatsApp")));
+      }
     }
   }
 
@@ -85,113 +104,118 @@ class _TradeTabState extends State<TradeTab> {
     final formattedDate = DateFormat('EEEE, MMM d, yyyy').format(_currentTime);
     final formattedTime = DateFormat('h:mm:ss a').format(_currentTime);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Time and Date Display
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(formattedDate, style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 4),
-                  Text(formattedTime, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  const Text("Trading Hours: 11:15 AM - 5:00 PM", style: TextStyle(color: Colors.grey)),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: isMarketOpen ? Colors.green : Colors.red,
-                          shape: BoxShape.circle,
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
+        onPressed: _launchWhatsApp,
+        child: const Icon(Icons.chat, color: Colors.white),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(formattedDate, style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 4),
+                    Text(formattedTime, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                    const SizedBox(height: 10),
+                    const Text("Trading Hours: 11:15 AM - 5:00 PM", style: TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: isMarketOpen ? Colors.green : Colors.red,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        marketStatusMsg,
-                        style: TextStyle(
-                          color: isMarketOpen ? Colors.green : Colors.red,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(width: 8),
+                        Text(
+                          marketStatusMsg,
+                          style: TextStyle(
+                            color: isMarketOpen ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                ],
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          
-          const SizedBox(height: 20),
-
-          Center(child: Text("Today's Rate: Rs. $price / Tola", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-          const SizedBox(height: 30),
-          
-          if (isMarketOpen) ...[
-            TextField(
-              controller: _quantityController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: "Quantity (Tola)",
-                border: OutlineInputBorder(),
-              ),
-            ),
+            
             const SizedBox(height: 20),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                      onPressed: () => _handleTrade(TransactionType.buy),
-                      child: const Text("BUY SILVER"),
+
+            Center(child: Text("Today's Rate: Rs. $price / Tola", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+            const SizedBox(height: 30),
+            
+            if (isMarketOpen) ...[
+              TextField(
+                controller: _quantityController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: "Quantity (Tola)",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                        onPressed: () => _handleTrade(TransactionType.buy),
+                        child: const Text("BUY SILVER"),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                      onPressed: () => _handleTrade(TransactionType.sell),
-                      child: const Text("SELL SILVER"),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                        onPressed: () => _handleTrade(TransactionType.sell),
+                        child: const Text("SELL SILVER"),
+                      ),
                     ),
-                  ),
-                ],
-              )
-          ] else ...[
-             Container(
-               padding: const EdgeInsets.all(16),
-               decoration: BoxDecoration(
-                 color: Colors.red.shade50,
-                 borderRadius: BorderRadius.circular(8),
-                 border: Border.all(color: Colors.red.shade200),
-               ),
-               child: const Column(
-                 children: [
-                   Icon(Icons.lock_clock, size: 48, color: Colors.red),
-                   SizedBox(height: 10),
-                   Text(
-                     "Trading is currently paused.",
-                     textAlign: TextAlign.center,
-                     style: TextStyle(fontSize: 16, color: Colors.red),
-                   ),
-                 ],
-               ),
-             )
-          ]
-        ],
+                  ],
+                )
+            ] else ...[
+               Container(
+                 padding: const EdgeInsets.all(16),
+                 decoration: BoxDecoration(
+                   color: Colors.red.shade50,
+                   borderRadius: BorderRadius.circular(8),
+                   border: Border.all(color: Colors.red.shade200),
+                 ),
+                 child: const Column(
+                   children: [
+                     Icon(Icons.lock_clock, size: 48, color: Colors.red),
+                     SizedBox(height: 10),
+                     Text(
+                       "Trading is currently paused.",
+                       textAlign: TextAlign.center,
+                       style: TextStyle(fontSize: 16, color: Colors.red),
+                     ),
+                   ],
+                 ),
+               )
+            ]
+          ],
+        ),
       ),
     );
   }
 }
-

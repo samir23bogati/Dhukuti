@@ -51,14 +51,14 @@ class MarketProvider extends ChangeNotifier {
   bool get isMarketOpen {
     final now = DateTime.now();
 
-    // 1. Check Admin Override
+    
     if (_marketSettings != null) {
       final overrideDateTimestamp = _marketSettings!['overrideDate'] as Timestamp?;
       final isClosed = _marketSettings!['isClosed'] as bool? ?? false;
 
       if (overrideDateTimestamp != null) {
         final overrideDate = overrideDateTimestamp.toDate();
-        // Check if override is for today
+        
         if (overrideDate.year == now.year &&
             overrideDate.month == now.month &&
             overrideDate.day == now.day) {
@@ -67,14 +67,12 @@ class MarketProvider extends ChangeNotifier {
       }
     }
 
-    // 2. Check Weekend (Saturday)
     if (now.weekday == DateTime.saturday) {
       return false;
     }
 
-    // 3. Check Time (11:15 AM - 5:00 PM)
     final startTime = DateTime(now.year, now.month, now.day, 11, 15);
-    final endTime = DateTime(now.year, now.month, now.day, 17, 0); // 17:00 is 5 PM
+    final endTime = DateTime(now.year, now.month, now.day, 17, 0); 
 
     return now.isAfter(startTime) && now.isBefore(endTime);
   }
@@ -159,7 +157,13 @@ class MarketProvider extends ChangeNotifier {
     if (!isMarketOpen) throw Exception("Market is currently closed.");
     if (_currentPrice == null) throw Exception("Price not available");
     
-    final totalAmount = quantityTola * _currentPrice!;
+    double totalAmount = quantityTola * _currentPrice!;
+    
+    // Apply 1% deduction on SELL
+    if (type == TransactionType.sell) {
+      totalAmount = totalAmount * 0.99; 
+    }
+
     final transactionId = FirebaseFirestore.instance.collection('transactions').doc().id;
 
     final transaction = TransactionModel(
@@ -172,9 +176,7 @@ class MarketProvider extends ChangeNotifier {
       timestamp: DateTime.now(),
     );
 
-    // Run transaction
     await FirebaseFirestore.instance.runTransaction((tx) async {
-      // 1. Read Portfolio First (CRITICAL: All reads must happen before writes)
       final portRef = FirebaseFirestore.instance.collection('portfolios').doc(userId);
       final portDoc = await tx.get(portRef);
       
@@ -209,14 +211,11 @@ class MarketProvider extends ChangeNotifier {
         totalInvestedAmount: currentInvested,
       );
       
-      // 2. Perform Writes
       final txRef = FirebaseFirestore.instance.collection('transactions').doc(transactionId);
-      tx.set(txRef, transaction.toMap()); // Write Log
-      tx.set(portRef, newPortfolio.toMap()); // Write Portfolio
+      tx.set(txRef, transaction.toMap()); 
+      tx.set(portRef, newPortfolio.toMap()); 
     });
 
-    // Refresh local state
     await fetchPortfolio(userId);
   }
 }
-
