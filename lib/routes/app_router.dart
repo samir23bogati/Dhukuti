@@ -23,6 +23,11 @@ GoRouter createRouter(AuthState authState) {
         return AppRoutes.dashboard;
       }
 
+      // 🚀 Skip splash if already logged in
+      if (loggedIn && state.matchedLocation == AppRoutes.splash) {
+        return AppRoutes.dashboard;
+      }
+
       return null;
     },
 

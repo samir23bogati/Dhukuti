@@ -1,0 +1,37 @@
+﻿Resolving dependencies...
+flutter : Because 
+dhukuti depends on 
+fl_chart 1.0.1 which 
+doesn't match any 
+versions, version 
+solving failed.
+At line:1 char:1
++ flutter pub get > 
+pub_get_error.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Because   
+  dhukuti...solvi    
+ng failed.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+
+You can try the 
+following suggestion 
+to make the pubspec 
+resolve:
+* Try upgrading your 
+constraint on 
+fl_chart: flutter 
+pub add 
+fl_chart:^1.1.0
+Failed to update 
+packages.

@@ -6,10 +6,12 @@ import 'routes/app_router.dart';
 import 'auth/auth_state.dart';
 import 'providers/user_provider.dart';
 import 'providers/market_provider.dart';
+import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FCMService().initNotifications();
 
   runApp(
     MultiProvider(

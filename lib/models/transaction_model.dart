@@ -4,6 +4,7 @@ class TransactionModel {
   final String id;
   final String userId;
   final TransactionType type;
+  final String metalType; // 'gold' or 'silver'
   final double quantityTola;
   final double ratePerTola;
   final double totalAmount;
@@ -13,6 +14,7 @@ class TransactionModel {
     required this.id,
     required this.userId,
     required this.type,
+    required this.metalType,
     required this.quantityTola,
     required this.ratePerTola,
     required this.totalAmount,
@@ -26,6 +28,7 @@ class TransactionModel {
       type: TransactionType.values.firstWhere(
           (e) => e.toString() == 'TransactionType.${map['type']}',
           orElse: () => TransactionType.buy),
+      metalType: map['metalType'] ?? 'silver',
       quantityTola: (map['quantityTola'] ?? 0).toDouble(),
       ratePerTola: (map['ratePerTola'] ?? 0).toDouble(),
       totalAmount: (map['totalAmount'] ?? 0).toDouble(),
@@ -39,6 +42,7 @@ class TransactionModel {
     return {
       'userId': userId,
       'type': type.toString().split('.').last, // 'buy' or 'sell'
+      'metalType': metalType,
       'quantityTola': quantityTola,
       'ratePerTola': ratePerTola,
       'totalAmount': totalAmount,

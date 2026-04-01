@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dhukuti/providers/market_provider.dart';
+import 'package:dhukuti/screens/admin/admin_kyc_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,40 +10,33 @@ class AdminDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(screenWidth * 0.04),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Admin Dashboard", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-
-          // Market Control Section
-          const Text("Market Control", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Market Control", style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           _buildMarketControlCard(context),
           const SizedBox(height: 20),
 
-          // Price Card
           Consumer<MarketProvider>(
             builder: (context, market, child) {
-              final price = market.currentPrice;
+              final silverPrice = market.currentSilverPrice;
+              final goldPrice = market.currentGoldPrice;
               final isLoading = market.isLoadingPrice;
               
               return Card(
                 elevation: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      const Text("Silver Rate (Today)", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      if (isLoading)
-                        const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      else if (price == null)
-                        const Text("Error", style: TextStyle(color: Colors.red))
-                      else
-                        Text("Rs. ${price.toStringAsFixed(2)}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                       _buildRateRow("Silver Rate", silverPrice, isLoading),
+                       const Divider(),
+                       _buildRateRow("Gold Rate", goldPrice, isLoading),
                     ],
                   ),
                 ),
@@ -50,8 +44,6 @@ class AdminDashboard extends StatelessWidget {
             },
           ),
           const SizedBox(height: 20),
-          
-          // Stats Row
           Row(
             children: [
               _StatCard(
@@ -66,6 +58,59 @@ class AdminDashboard extends StatelessWidget {
                 builder: (snapshot) => "${snapshot.docs.length}",
               ),
             ],
+          ),
+          
+          const SizedBox(height: 25),
+          const Text("Pending KYC Verifications", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('users')
+              .where('verificationStatus', isEqualTo: 'pending')
+              .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              final docs = snapshot.data!.docs;
+              
+              if (docs.isEmpty) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text("No pending verifications", style: TextStyle(color: Colors.grey[600])),
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  final userData = docs[index].data() as Map<String, dynamic>;
+                  return Card(
+                    child: ListTile(
+                      leading: const CircleAvatar(child: Icon(Icons.person)),
+                      title: Text(userData['name'] ?? "No Name"),
+                      subtitle: Text(userData['phone']),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AdminKYCReviewScreen(
+                              uid: docs[index].id,
+                              userData: userData,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
           ),
           
           const SizedBox(height: 20),
@@ -114,67 +159,114 @@ class AdminDashboard extends StatelessWidget {
       builder: (context, market, _) {
         final isMsg = market.marketStatusMessage;
         final isOpen = market.isMarketOpen;
+        final screenWidth = MediaQuery.of(context).size.width;
 
         return Card(
-          color: isOpen ? Colors.green.shade50 : Colors.red.shade50,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isOpen ? Colors.green.shade50 : Colors.red.shade50,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  ),
+                ),
+                child: Row(
                   children: [
-                    Icon(isOpen ? Icons.check_circle : Icons.cancel, color: isOpen ? Colors.green : Colors.red),
-                    const SizedBox(width: 10),
-                    Text(isMsg, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isOpen ? Colors.green : Colors.red)),
+                    Icon(
+                      isOpen ? Icons.check_circle : Icons.cancel,
+                      color: isOpen ? Colors.green : Colors.red,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        isMsg,
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          fontWeight: FontWeight.bold,
+                          color: isOpen ? Colors.green.shade700 : Colors.red.shade700,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
                   children: [
-                    if (isOpen)
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.block),
-                        label: const Text("Close Today"),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                        onPressed: () => _confirmAction(context, "Close Market Today?", () {
-                          market.setMarketOverride(date: DateTime.now(), isClosed: true);
-                        }),
+                    if (isOpen) ...[
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _confirmAction(context, "Close Market Today?", () {
+                            market.setMarketOverride(date: DateTime.now(), isClosed: true);
+                          }),
+                          icon: const Icon(Icons.block, size: 18),
+                          label: const Text("Close Today"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(color: Colors.red),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
                       ),
-                    
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.calendar_today),
-                      label: const Text("Schedule Closure"),
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now().add(const Duration(days: 1)),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (date != null) {
-                           // ignore: use_build_context_synchronously
-                           _confirmAction(context, "Close Market on ${DateFormat('MMM d').format(date)}?", () {
-                             market.setMarketOverride(date: date, isClosed: true);
-                           });
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now().add(const Duration(days: 1)),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            // ignore: use_build_context_synchronously
+                            _confirmAction(context, "Close Market on ${DateFormat('MMM d').format(date)}?", () {
+                              market.setMarketOverride(date: date, isClosed: true);
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.calendar_today, size: 18),
+                        label: const Text("Schedule"),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (value) {
+                        if (value == 'reset') {
+                           _confirmAction(context, "Clear all manual overrides?", () {
+                            market.clearMarketOverride();
+                          });
                         }
                       },
-                    ),
-
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.refresh),
-                      label: const Text("Reset Overrides"),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200, foregroundColor: Colors.black),
-                      onPressed: () => _confirmAction(context, "Clear all manual overrides?", () {
-                        market.clearMarketOverride();
-                      }),
+                      itemBuilder: (BuildContext context) => [
+                        const PopupMenuItem<String>(
+                          value: 'reset',
+                          child: Row(
+                            children: [
+                              Icon(Icons.refresh, size: 20),
+                              SizedBox(width: 10),
+                              Text("Reset Overrides"),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                )
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -242,6 +334,21 @@ class AdminDashboard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRateRow(String title, double? price, bool isLoading) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        if (isLoading)
+          const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+        else if (price == null)
+          const Text("Error", style: TextStyle(color: Colors.red))
+        else
+          Text("Rs. ${price.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
+      ],
     );
   }
 }

@@ -1,0 +1,223 @@
+﻿Running Gradle task 'assembleRelease'...                        
+flutter : lib/screens
+/profile/profile_tab.
+dart:33:21: Error: 
+The method 'read' 
+isn't defined for 
+the class 
+'BuildContext'.
+At line:1 char:1
++ flutter build apk 
+--release > 
+build_error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (lib/scr   
+ eens/pro...'Buil    
+dContext'.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+ - 'BuildContext' is 
+from 'package:flutter
+/src/widgets/framewor
+k.dart' ('/H:/flutter
+/packages/flutter/lib
+/src/widgets/framewor
+k.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 'read'.
+      await context.r
+ead<UserProvider>().u
+pdateUserProfile(
+                    
+^^^^
+lib/screens/profile/p
+rofile_tab.dart:47:34
+: Error: The method 
+'watch' isn't 
+defined for the 
+class 'BuildContext'.
+ - 'BuildContext' is 
+from 'package:flutter
+/src/widgets/framewor
+k.dart' ('/H:/flutter
+/packages/flutter/lib
+/src/widgets/framewor
+k.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 'watch'.
+    final 
+userProvider = contex
+t.watch<UserProvider>
+();
+                     
+            ^^^^^
+/C:/Users/Acer/AppDat
+a/Local/Pub/Cache/hos
+ted/pub.dev/fl_chart-
+1.1.0/lib/src/chart/b
+ase/custom_interactiv
+e_viewer.dart:419:9: 
+Error: The method 
+'translateByDouble' 
+isn't defined for 
+the class 'Matrix4'.
+ - 'Matrix4' is from 
+'package:vector_math/
+vector_math_64.dart' 
+('/C:/Users/Acer/AppD
+ata/Local/Pub/Cache/h
+osted/pub.dev/vector_
+math-2.1.4/lib/vector
+_math_64.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 
+'translateByDouble'.
+      
+..translateByDouble(
+        
+^^^^^^^^^^^^^^^^^
+/C:/Users/Acer/AppDat
+a/Local/Pub/Cache/hos
+ted/pub.dev/fl_chart-
+1.1.0/lib/src/chart/b
+ase/custom_interactiv
+e_viewer.dart:534:9: 
+Error: The method 
+'scaleByDouble' 
+isn't defined for 
+the class 'Matrix4'.
+ - 'Matrix4' is from 
+'package:vector_math/
+vector_math_64.dart' 
+('/C:/Users/Acer/AppD
+ata/Local/Pub/Cache/h
+osted/pub.dev/vector_
+math-2.1.4/lib/vector
+_math_64.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 
+'scaleByDouble'.
+      ..scaleByDouble
+(clampedScale, 
+clampedScale, 
+clampedScale, 1);
+        ^^^^^^^^^^^^^
+/C:/Users/Acer/AppDat
+a/Local/Pub/Cache/hos
+ted/pub.dev/fl_chart-
+1.1.0/lib/src/chart/b
+ase/custom_interactiv
+e_viewer.dart:1114:7:
+ Error: The method 
+'translateByDouble' 
+isn't defined for 
+the class 'Matrix4'.
+ - 'Matrix4' is from 
+'package:vector_math/
+vector_math_64.dart' 
+('/C:/Users/Acer/AppD
+ata/Local/Pub/Cache/h
+osted/pub.dev/vector_
+math-2.1.4/lib/vector
+_math_64.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 
+'translateByDouble'.
+    ..translateByDoub
+le(rect.size.width / 
+2, rect.size.height 
+/ 2, 0, 1)
+      
+^^^^^^^^^^^^^^^^^
+/C:/Users/Acer/AppDat
+a/Local/Pub/Cache/hos
+ted/pub.dev/fl_chart-
+1.1.0/lib/src/chart/b
+ase/custom_interactiv
+e_viewer.dart:1116:7:
+ Error: The method 
+'translateByDouble' 
+isn't defined for 
+the class 'Matrix4'.
+ - 'Matrix4' is from 
+'package:vector_math/
+vector_math_64.dart' 
+('/C:/Users/Acer/AppD
+ata/Local/Pub/Cache/h
+osted/pub.dev/vector_
+math-2.1.4/lib/vector
+_math_64.dart').
+Try correcting the 
+name to the name of 
+an existing method, 
+or defining a method 
+named 
+'translateByDouble'.
+    ..translateByDoub
+le(-rect.size.width 
+/ 2, 
+-rect.size.height / 
+2, 0, 1);
+      
+^^^^^^^^^^^^^^^^^
+Target kernel_snapsho
+t_program failed: 
+Exception
+
+
+FAILURE: Build 
+failed with an 
+exception.
+
+* What went wrong:
+Execution failed for 
+task ':app:compileFlu
+tterBuildRelease'.
+> Process 'command 'H
+:\flutter\bin\flutter
+.bat'' finished with 
+non-zero exit value 1
+
+* Try:
+> Run with 
+--stacktrace option 
+to get the stack 
+trace.
+> Run with --info or 
+--debug option to 
+get more log output.
+> Run with --scan to 
+get full insights.
+> Get more help at ht
+tps://help.gradle.org
+.
+
+BUILD FAILED in 27s
+Running Gradle task 'assembleRelease'...                           27.9s
+Gradle task 
+assembleRelease 
+failed with exit 
+code 1

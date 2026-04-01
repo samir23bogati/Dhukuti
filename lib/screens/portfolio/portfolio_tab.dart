@@ -19,7 +19,11 @@ class _PortfolioTabState extends State<PortfolioTab> {
     if (!_initFetchDone) {
       final user = context.read<UserProvider>().userModel;
       if (user != null) {
-        context.read<MarketProvider>().fetchPortfolio(user.uid);
+        Future.microtask(() {
+          if (mounted) {
+            context.read<MarketProvider>().fetchPortfolio(user.uid);
+          }
+        });
         _initFetchDone = true;
       }
     }
@@ -30,69 +34,81 @@ class _PortfolioTabState extends State<PortfolioTab> {
     final userProvider = context.watch<UserProvider>();
     final marketProvider = context.watch<MarketProvider>();
     
-    // Auto-fetch if user becomes available later and we haven't fetched
-    if (!_initFetchDone && userProvider.userModel != null) {
-       // use Future.microtask to avoid build-time state changes if necessary, 
-       // but strictly speaking safe if we don't cause rebuild loop.
-       // Safest to do in microtask.
-       Future.microtask(() {
-         if (mounted && !_initFetchDone) {
-            context.read<MarketProvider>().fetchPortfolio(userProvider.userModel!.uid);
-            setState(() => _initFetchDone = true);
-         }
-       });
-    }
+    // Fetching is handled in didChangeDependencies
 
     if (userProvider.errorMessage != null) {
       return Center(child: Text("Error: ${userProvider.errorMessage}"));
     }
 
     final portfolio = marketProvider.portfolio;
-    final currentPrice = marketProvider.currentPrice ?? 0;
+    final silverPrice = marketProvider.currentSilverPrice ?? 0;
+    final goldPrice = marketProvider.currentGoldPrice ?? 0;
 
-    if (userProvider.isLoading) {
+    if (userProvider.isLoading || portfolio == null || marketProvider.isLoadingPortfolio) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    final silverValue = portfolio.totalSilverTola * silverPrice;
+    final silverPL = silverValue - portfolio.totalSilverInvestedAmount;
     
-    if (portfolio == null || marketProvider.isLoadingPortfolio) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final goldValue = portfolio.totalGoldTola * goldPrice;
+    final goldPL = goldValue - portfolio.totalGoldInvestedAmount;
 
-    final currentValue = portfolio.totalSilverTola * currentPrice;
-    final profitLoss = currentValue - portfolio.totalInvestedAmount;
-    final isProfit = profitLoss >= 0;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(screenWidth * 0.04),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("My Portfolio", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          _buildSummaryCard("Current Holdings", "${portfolio.totalSilverTola.toStringAsFixed(2)} Tola"),
-          const SizedBox(height: 10),
-          _buildSummaryCard("Total Investment", "Rs. ${portfolio.totalInvestedAmount.toStringAsFixed(2)}"),
-          const SizedBox(height: 10),
-          _buildSummaryCard(
-            "Profit / Loss",
-            "Rs. ${profitLoss.abs().toStringAsFixed(2)}",
-            valueColor: isProfit ? Colors.green : Colors.red,
-            subtitle: isProfit ? "Profit" : "Loss",
-          ),
+          Text("My Portfolio", style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold)),
+          SizedBox(height: screenWidth * 0.05),
+          
+          _buildMetalSection("Silver", portfolio.totalSilverTola, portfolio.totalSilverInvestedAmount, silverPL, screenWidth, Colors.blueGrey),
+          const SizedBox(height: 24),
+          _buildMetalSection("Gold", portfolio.totalGoldTola, portfolio.totalGoldInvestedAmount, goldPL, screenWidth, Colors.orange),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, {Color? valueColor, String? subtitle}) {
+  Widget _buildMetalSection(String title, double qty, double invested, double pl, double screenWidth, Color color) {
+    final isProfit = pl >= 0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.diamond, color: color, size: 20),
+            const SizedBox(width: 8),
+            Text(title, style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold, color: color)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildSummaryCard("Holdings", "${qty.toStringAsFixed(2)} Tola", screenWidth),
+        _buildSummaryCard("Invested", "Rs. ${invested.toStringAsFixed(2)}", screenWidth),
+        _buildSummaryCard(
+          "Profit / Loss",
+          "Rs. ${pl.abs().toStringAsFixed(2)}",
+          screenWidth,
+          valueColor: isProfit ? Colors.green : Colors.red,
+          subtitle: isProfit ? "Profit" : "Loss",
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard(String title, String value, double screenWidth, {Color? valueColor, String? subtitle}) {
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: valueColor)) : null,
+        dense: true,
+        title: Text(title, style: TextStyle(fontSize: screenWidth * 0.035)),
+        subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: valueColor, fontSize: screenWidth * 0.03)) : null,
         trailing: Text(
           value,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: screenWidth * 0.04,
             fontWeight: FontWeight.bold,
             color: valueColor,
           ),

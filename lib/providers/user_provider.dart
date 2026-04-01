@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dhukuti/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -38,19 +40,21 @@ class UserProvider extends ChangeNotifier {
       if (doc.exists) {
         _userModel = UserModel.fromMap(doc.data()!, user.uid);
       } else {
-        // Create new user doc if doesn't exist
         final newUser = UserModel(
           uid: user.uid,
           phone: user.phoneNumber ?? '',
           createdAt: DateTime.now(),
-          isAdmin: user.phoneNumber == '+9779813629126', // Admin Check
+          isAdmin: false,
         );
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .set(newUser.toMap());
+
         _userModel = newUser;
       }
+
       notifyListeners();
     } catch (e) {
       debugPrint("Error fetching user details: $e");
@@ -59,9 +63,91 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateUserProfile({String? name, String? address, String? email}) async {
+  Future<void> submitKYC({
+    required File citizenshipFront,
+    required File citizenshipBack,
+    required File selfie,
+  }) async {
     if (_userModel == null) return;
-    
+
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final uid = _userModel!.uid;
+
+      final frontRef = storageRef.child('kyc/$uid/citizenship_front.jpg');
+      final backRef = storageRef.child('kyc/$uid/citizenship_back.jpg');
+      final selfieRef = storageRef.child('kyc/$uid/selfie.jpg');
+
+      await frontRef.putFile(citizenshipFront);
+      await backRef.putFile(citizenshipBack);
+      await selfieRef.putFile(selfie);
+
+      final frontUrl = await frontRef.getDownloadURL();
+      final backUrl = await backRef.getDownloadURL();
+      final selfieUrl = await selfieRef.getDownloadURL();
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({
+        'verificationStatus': 'pending',
+        'citizenshipFrontUrl': frontUrl,
+        'citizenshipBackUrl': backUrl,
+        'selfieUrl': selfieUrl,
+      });
+
+      _userModel = _userModel!.copyWith(
+        verificationStatus: 'pending',
+        citizenshipFrontUrl: frontUrl,
+        citizenshipBackUrl: backUrl,
+        selfieUrl: selfieUrl,
+      );
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error submitting KYC: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateKYCStatus({
+    required String uid,
+    required String status,
+    String? rejectionReason,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'verificationStatus': status,
+      };
+      if (rejectionReason != null) {
+        updates['rejectionReason'] = rejectionReason;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update(updates);
+
+      if (_userModel?.uid == uid) {
+        _userModel = _userModel!.copyWith(
+          verificationStatus: status,
+          rejectionReason: rejectionReason,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error updating KYC status: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserProfile({
+    String? name,
+    String? address,
+    String? email,
+  }) async {
+    if (_userModel == null) return;
+
     try {
       final updates = <String, dynamic>{};
       if (name != null) updates['name'] = name;
@@ -72,18 +158,13 @@ class UserProvider extends ChangeNotifier {
           .collection('users')
           .doc(_userModel!.uid)
           .update(updates);
-      
-      // Refresh local model
-      _userModel = UserModel(
-        uid: _userModel!.uid,
-        phone: _userModel!.phone,
-        name: name ?? _userModel!.name,
-        address: address ?? _userModel!.address,
-        email: email ?? _userModel!.email,
-        photoUrl: _userModel!.photoUrl,
-        isAdmin: _userModel!.isAdmin,
-        createdAt: _userModel!.createdAt,
+
+      _userModel = _userModel!.copyWith(
+        name: name,
+        address: address,
+        email: email,
       );
+
       notifyListeners();
     } catch (e) {
       debugPrint("Error updating profile: $e");
