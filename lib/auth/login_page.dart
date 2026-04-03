@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     if (onlyDigits.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Enter a 10-digit phone number (e.g. 9841000000)'),
+          content: Text('Enter a 10 digit phone number (e.g. 9841000000)'),
         ),
       );
       return;
