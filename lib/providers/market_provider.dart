@@ -167,26 +167,15 @@ class MarketProvider extends ChangeNotifier {
   }) async {
     if (!isMarketOpen) throw Exception("Market is currently closed.");
     
-    /* 
-    if (user.verificationStatus != 'verified') {
-      throw Exception("Your account is not verified for trading. Please complete KYC.");
-    }
-    */
-    
     final price = metalType == 'gold' ? _currentGoldPrice : _currentSilverPrice;
     if (price == null) throw Exception("Price not available");
     
     double totalAmount = quantityTola * price;
     
-    // 1% Service Charge on PURCHASE
     if (type == TransactionType.buy) {
       totalAmount = AppUtils.calculateTotalWithFee(totalAmount); 
     }
     
-    // Keeping current 1% on SELL if it was there by design, 
-    // but the requirement explicitly mentions purchase.
-    // The previous implementation had: if (type == TransactionType.sell) { totalAmount = totalAmount * 0.99; }
-    // I'll keep it for now as it makes sense for business (spread/fee).
     if (type == TransactionType.sell) {
       totalAmount = totalAmount * 0.99; 
     }
@@ -201,10 +190,25 @@ class MarketProvider extends ChangeNotifier {
       ratePerTola: price,
       totalAmount: totalAmount,
       timestamp: DateTime.now(),
+      status: TransactionStatus.pending,
     );
 
+    await FirebaseFirestore.instance.collection('transactions').doc(transactionId).set(transaction.toMap());
+  }
+
+  Future<void> approveTransaction(String transactionId, String adminId) async {
+    final txDoc = await FirebaseFirestore.instance.collection('transactions').doc(transactionId).get();
+    if (!txDoc.exists) throw Exception("Transaction not found");
+
+    final txData = txDoc.data()!;
+    final transaction = TransactionModel.fromMap(txData, transactionId);
+    
+    if (transaction.status != TransactionStatus.pending) {
+      throw Exception("Transaction is not pending");
+    }
+
     await FirebaseFirestore.instance.runTransaction((tx) async {
-      final portRef = FirebaseFirestore.instance.collection('portfolios').doc(user.uid);
+      final portRef = FirebaseFirestore.instance.collection('portfolios').doc(transaction.userId);
       final portDoc = await tx.get(portRef);
       
       double silverQty = 0;
@@ -220,14 +224,14 @@ class MarketProvider extends ChangeNotifier {
         goldInv = (data['totalGoldInvestedAmount'] ?? 0).toDouble();
       }
 
-      if (metalType == 'gold') {
-        if (type == TransactionType.buy) {
-          goldQty += quantityTola;
-          goldInv += totalAmount;
+      if (transaction.metalType == 'gold') {
+        if (transaction.type == TransactionType.buy) {
+          goldQty += transaction.quantityTola;
+          goldInv += transaction.totalAmount;
         } else {
-          if (goldQty < quantityTola) throw Exception("Insufficient gold holdings");
+          if (goldQty < transaction.quantityTola) throw Exception("Insufficient gold holdings");
           double prevQty = goldQty;
-          goldQty -= quantityTola;
+          goldQty -= transaction.quantityTola;
           if (goldQty > 0) {
             goldInv = goldInv * (goldQty / prevQty);
           } else {
@@ -235,13 +239,13 @@ class MarketProvider extends ChangeNotifier {
           }
         }
       } else {
-        if (type == TransactionType.buy) {
-          silverQty += quantityTola;
-          silverInv += totalAmount;
+        if (transaction.type == TransactionType.buy) {
+          silverQty += transaction.quantityTola;
+          silverInv += transaction.totalAmount;
         } else {
-          if (silverQty < quantityTola) throw Exception("Insufficient silver holdings");
+          if (silverQty < transaction.quantityTola) throw Exception("Insufficient silver holdings");
           double prevQty = silverQty;
-          silverQty -= quantityTola;
+          silverQty -= transaction.quantityTola;
           if (silverQty > 0) {
             silverInv = silverInv * (silverQty / prevQty);
           } else {
@@ -251,17 +255,31 @@ class MarketProvider extends ChangeNotifier {
       }
 
       final newPortfolio = PortfolioModel(
-        userId: user.uid,
+        userId: transaction.userId,
         totalSilverTola: silverQty,
         totalSilverInvestedAmount: silverInv,
         totalGoldTola: goldQty,
         totalGoldInvestedAmount: goldInv,
       );
       
-      tx.set(FirebaseFirestore.instance.collection('transactions').doc(transactionId), transaction.toMap()); 
+      tx.update(
+        FirebaseFirestore.instance.collection('transactions').doc(transactionId),
+        {
+          'status': TransactionStatus.approved.toString().split('.').last,
+          'approvedBy': adminId,
+          'approvedAt': DateTime.now().millisecondsSinceEpoch,
+        },
+      );
       tx.set(portRef, newPortfolio.toMap()); 
     });
+  }
 
-    await fetchPortfolio(user.uid);
+  Future<void> rejectTransaction(String transactionId, String adminId, String reason) async {
+    await FirebaseFirestore.instance.collection('transactions').doc(transactionId).update({
+      'status': TransactionStatus.rejected.toString().split('.').last,
+      'approvedBy': adminId,
+      'approvedAt': DateTime.now().millisecondsSinceEpoch,
+      'rejectionReason': reason,
+    });
   }
 }

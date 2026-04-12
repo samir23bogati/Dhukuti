@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dhukuti/providers/market_provider.dart';
 import 'package:dhukuti/screens/admin/admin_kyc_review_screen.dart';
+import 'package:dhukuti/screens/admin/admin_transaction_approval_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(screenWidth * 0.04),
@@ -18,9 +20,9 @@ class AdminDashboard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Market Control", style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.012),
           _buildMarketControlCard(context),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.025),
 
           Consumer<MarketProvider>(
             builder: (context, market, child) {
@@ -31,53 +33,59 @@ class AdminDashboard extends StatelessWidget {
               return Card(
                 elevation: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(screenWidth * 0.04),
                   child: Column(
                     children: [
-                       _buildRateRow("Silver Rate", silverPrice, isLoading),
-                       const Divider(),
-                       _buildRateRow("Gold Rate", goldPrice, isLoading),
+                       _buildRateRow("Silver Rate", silverPrice, isLoading, screenWidth),
+                       Divider(),
+                       _buildRateRow("Gold Rate", goldPrice, isLoading, screenWidth),
                     ],
                   ),
                 ),
               );
             },
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.025),
           Row(
             children: [
               _StatCard(
                 title: "Total Users",
                 stream: FirebaseFirestore.instance.collection('users').snapshots(),
                 builder: (snapshot) => "${snapshot.docs.length}",
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: screenWidth * 0.025),
               _StatCard(
-                title: "Total Transactions",
+                title: "Total Txns",
                 stream: FirebaseFirestore.instance.collection('transactions').snapshots(),
                 builder: (snapshot) => "${snapshot.docs.length}",
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
               ),
+              SizedBox(width: screenWidth * 0.025),
+              _PendingTxCard(screenWidth: screenWidth, screenHeight: screenHeight),
             ],
           ),
           
-          const SizedBox(height: 25),
-          const Text("Pending KYC Verifications", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.03),
+          Text("Pending KYC Verifications", style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold)),
+          SizedBox(height: screenHeight * 0.012),
           
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('users')
               .where('verificationStatus', isEqualTo: 'pending')
               .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
               final docs = snapshot.data!.docs;
               
               if (docs.isEmpty) {
                 return Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(screenWidth * 0.04),
                     child: Center(
-                      child: Text("No pending verifications", style: TextStyle(color: Colors.grey[600])),
+                      child: Text("No pending verifications", style: TextStyle(color: Colors.grey[600], fontSize: screenWidth * 0.035)),
                     ),
                   ),
                 );
@@ -91,10 +99,10 @@ class AdminDashboard extends StatelessWidget {
                   final userData = docs[index].data() as Map<String, dynamic>;
                   return Card(
                     child: ListTile(
-                      leading: const CircleAvatar(child: Icon(Icons.person)),
-                      title: Text(userData['name'] ?? "No Name"),
-                      subtitle: Text(userData['phone']),
-                      trailing: const Icon(Icons.chevron_right),
+                      leading: CircleAvatar(child: Icon(Icons.person, size: screenWidth * 0.06)),
+                      title: Text(userData['name'] ?? "No Name", style: TextStyle(fontSize: screenWidth * 0.04)),
+                      subtitle: Text(userData['phone'], style: TextStyle(fontSize: screenWidth * 0.03)),
+                      trailing: Icon(Icons.chevron_right, size: screenWidth * 0.06),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -113,9 +121,9 @@ class AdminDashboard extends StatelessWidget {
             },
           ),
           
-          const SizedBox(height: 20),
-          const Text("Recent Transactions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.025),
+          Text("Recent Transactions", style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold)),
+          SizedBox(height: screenHeight * 0.012),
           
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('transactions')
@@ -123,7 +131,7 @@ class AdminDashboard extends StatelessWidget {
               .limit(10)
               .snapshots(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const CircularProgressIndicator();
+              if (!snapshot.hasData) return CircularProgressIndicator();
               final docs = snapshot.data!.docs;
               
               return ListView.builder(
@@ -138,10 +146,11 @@ class AdminDashboard extends StatelessWidget {
                       leading: Icon(
                         type.contains('BUY') ? Icons.arrow_downward : Icons.arrow_upward,
                         color: type.contains('BUY') ? Colors.green : Colors.red,
+                        size: screenWidth * 0.06,
                       ),
-                      title: Text("$type - ${data['quantityTola']} Tola"),
-                      subtitle: Text("ID: ${docs[index].id.substring(0, 8)}..."),
-                      trailing: Text("Rs. ${data['totalAmount']}"),
+                      title: Text("$type - ${data['quantityTola']} Tola", style: TextStyle(fontSize: screenWidth * 0.035)),
+                      subtitle: Text("ID: ${docs[index].id.substring(0, 8)}...", style: TextStyle(fontSize: screenWidth * 0.03)),
+                      trailing: Text("Rs. ${data['totalAmount']}", style: TextStyle(fontSize: screenWidth * 0.035)),
                       onTap: () => _showUserDetails(context, data['userId']),
                     ),
                   );
@@ -160,19 +169,20 @@ class AdminDashboard extends StatelessWidget {
         final isMsg = market.marketStatusMessage;
         final isOpen = market.isMarketOpen;
         final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
 
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.03)),
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.015),
                 decoration: BoxDecoration(
                   color: isOpen ? Colors.green.shade50 : Colors.red.shade50,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(screenWidth * 0.03),
+                    topRight: Radius.circular(screenWidth * 0.03),
                   ),
                 ),
                 child: Row(
@@ -180,9 +190,9 @@ class AdminDashboard extends StatelessWidget {
                     Icon(
                       isOpen ? Icons.check_circle : Icons.cancel,
                       color: isOpen ? Colors.green : Colors.red,
-                      size: 24,
+                      size: screenWidth * 0.06,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: screenWidth * 0.03),
                     Expanded(
                       child: Text(
                         isMsg,
@@ -197,7 +207,7 @@ class AdminDashboard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(screenWidth * 0.03),
                 child: Row(
                   children: [
                     if (isOpen) ...[
@@ -206,16 +216,16 @@ class AdminDashboard extends StatelessWidget {
                           onPressed: () => _confirmAction(context, "Close Market Today?", () {
                             market.setMarketOverride(date: DateTime.now(), isClosed: true);
                           }),
-                          icon: const Icon(Icons.block, size: 18),
-                          label: const Text("Close Today"),
+                          icon: Icon(Icons.block, size: screenWidth * 0.045),
+                          label: Text("Close Today", style: TextStyle(fontSize: screenWidth * 0.035)),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.red,
                             side: const BorderSide(color: Colors.red),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: screenWidth * 0.02),
                     ],
                     Expanded(
                       child: ElevatedButton.icon(
@@ -227,22 +237,21 @@ class AdminDashboard extends StatelessWidget {
                             lastDate: DateTime.now().add(const Duration(days: 365)),
                           );
                           if (date != null) {
-                            // ignore: use_build_context_synchronously
                             _confirmAction(context, "Close Market on ${DateFormat('MMM d').format(date)}?", () {
                               market.setMarketOverride(date: date, isClosed: true);
                             });
                           }
                         },
-                        icon: const Icon(Icons.calendar_today, size: 18),
-                        label: const Text("Schedule"),
+                        icon: Icon(Icons.calendar_today, size: screenWidth * 0.045),
+                        label: Text("Schedule", style: TextStyle(fontSize: screenWidth * 0.035)),
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: screenWidth * 0.01),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert),
+                      icon: Icon(Icons.more_vert, size: screenWidth * 0.06),
                       onSelected: (value) {
                         if (value == 'reset') {
                            _confirmAction(context, "Clear all manual overrides?", () {
@@ -251,13 +260,13 @@ class AdminDashboard extends StatelessWidget {
                         }
                       },
                       itemBuilder: (BuildContext context) => [
-                        const PopupMenuItem<String>(
+                        PopupMenuItem<String>(
                           value: 'reset',
                           child: Row(
                             children: [
-                              Icon(Icons.refresh, size: 20),
-                              SizedBox(width: 10),
-                              Text("Reset Overrides"),
+                              Icon(Icons.refresh, size: screenWidth * 0.05),
+                              SizedBox(width: screenWidth * 0.025),
+                              Text("Reset Overrides", style: TextStyle(fontSize: screenWidth * 0.035)),
                             ],
                           ),
                         ),
@@ -274,19 +283,20 @@ class AdminDashboard extends StatelessWidget {
   }
 
   void _confirmAction(BuildContext context, String title, Function action) {
+    final screenWidth = MediaQuery.of(context).size.width;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: const Text("Are you sure you want to perform this action?"),
+        title: Text(title, style: TextStyle(fontSize: screenWidth * 0.045)),
+        content: Text("Are you sure you want to perform this action?", style: TextStyle(fontSize: screenWidth * 0.038)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text("Cancel", style: TextStyle(fontSize: screenWidth * 0.038))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               action();
             },
-            child: const Text("Confirm"),
+            child: Text("Confirm", style: TextStyle(fontSize: screenWidth * 0.038)),
           )
         ],
       ),
@@ -295,39 +305,41 @@ class AdminDashboard extends StatelessWidget {
 
   void _showUserDetails(BuildContext context, String? userId) {
     if (userId == null) return;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(screenWidth * 0.04),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("User Details", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
+              Text("User Details", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold)),
+              SizedBox(height: screenHeight * 0.02),
               FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance.collection('users').doc(userId).get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return const Text("Error loading user details", style: TextStyle(color: Colors.red));
+                    return Text("Error loading user details", style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.038));
                   } else if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return const Text("User not found");
+                    return Text("User not found", style: TextStyle(fontSize: screenWidth * 0.038));
                   }
-                  
+                   
                   final data = snapshot.data!.data() as Map<String, dynamic>;
                   return Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
                      children: [
-                        _DetailRow(icon: Icons.person, label: "Name", value: data['name'] ?? "N/A"),
-                        _DetailRow(icon: Icons.phone, label: "Phone", value: data['phone'] ?? "N/A"),
-                        _DetailRow(icon: Icons.location_on, label: "Address", value: data['address'] ?? "N/A"),
-                        _DetailRow(icon: Icons.email, label: "Email", value: data['email'] ?? "N/A"),
+                        _DetailRow(icon: Icons.person, label: "Name", value: data['name'] ?? "N/A", screenWidth: screenWidth),
+                        _DetailRow(icon: Icons.phone, label: "Phone", value: data['phone'] ?? "N/A", screenWidth: screenWidth),
+                        _DetailRow(icon: Icons.location_on, label: "Address", value: data['address'] ?? "N/A", screenWidth: screenWidth),
+                        _DetailRow(icon: Icons.email, label: "Email", value: data['email'] ?? "N/A", screenWidth: screenWidth),
                      ],
-                  );
+                   );
                 },
               ),
             ],
@@ -337,17 +349,17 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildRateRow(String title, double? price, bool isLoading) {
+  Widget _buildRateRow(String title, double? price, bool isLoading, double screenWidth) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(title, style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold)),
         if (isLoading)
-          const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          SizedBox(width: screenWidth * 0.05, height: screenWidth * 0.05, child: CircularProgressIndicator(strokeWidth: 2))
         else if (price == null)
-          const Text("Error", style: TextStyle(color: Colors.red))
+          Text("Error", style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.04))
         else
-          Text("Rs. ${price.toStringAsFixed(2)}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
+          Text("Rs. ${price.toStringAsFixed(2)}", style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold, color: Colors.green)),
       ],
     );
   }
@@ -357,19 +369,20 @@ class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final double screenWidth;
   
-  const _DetailRow({required this.icon, required this.label, required this.value});
+  const _DetailRow({required this.icon, required this.label, required this.value, required this.screenWidth});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
-          const SizedBox(width: 10),
-          Text("$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value)),
+          Icon(icon, size: screenWidth * 0.05, color: Colors.grey),
+          SizedBox(width: screenWidth * 0.025),
+          Text("$label: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.038)),
+          Expanded(child: Text(value, style: TextStyle(fontSize: screenWidth * 0.038))),
         ],
       ),
     );
@@ -380,8 +393,10 @@ class _StatCard extends StatelessWidget {
   final String title;
   final Stream<QuerySnapshot> stream;
   final String Function(QuerySnapshot) builder;
+  final double screenWidth;
+  final double screenHeight;
 
-  const _StatCard({required this.title, required this.stream, required this.builder});
+  const _StatCard({required this.title, required this.stream, required this.builder, required this.screenWidth, required this.screenHeight});
 
   @override
   Widget build(BuildContext context) {
@@ -389,22 +404,79 @@ class _StatCard extends StatelessWidget {
       child: Card(
         color: Colors.blue.shade50,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(screenWidth * 0.04),
           child: Column(
             children: [
-              Text(title, style: const TextStyle(fontSize: 14)),
-              const SizedBox(height: 8),
+              Text(title, style: TextStyle(fontSize: screenWidth * 0.035)),
+              SizedBox(height: screenHeight * 0.01),
               StreamBuilder<QuerySnapshot>(
                 stream: stream,
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const Text("-");
+                  if (!snapshot.hasData) return Text("-", style: TextStyle(fontSize: screenWidth * 0.04));
                   return Text(
                     builder(snapshot.data!),
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold),
                   );
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PendingTxCard extends StatelessWidget {
+  final double screenWidth;
+  final double screenHeight;
+
+  const _PendingTxCard({required this.screenWidth, required this.screenHeight});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminTransactionApprovalScreen()),
+          );
+        },
+        child: Card(
+          color: Colors.orange.shade50,
+          child: Padding(
+            padding: EdgeInsets.all(screenWidth * 0.04),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Pending", style: TextStyle(fontSize: screenWidth * 0.035)),
+                    SizedBox(width: screenWidth * 0.01),
+                    Icon(Icons.arrow_forward_ios, size: screenWidth * 0.03, color: Colors.orange[700]),
+                  ],
+                ),
+                SizedBox(height: screenHeight * 0.01),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('transactions')
+                      .where('status', isEqualTo: 'pending')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                    return Text(
+                      "$count",
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.06,
+                        fontWeight: FontWeight.bold,
+                        color: count > 0 ? Colors.orange[700] : Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

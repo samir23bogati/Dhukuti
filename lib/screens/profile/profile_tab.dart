@@ -18,7 +18,7 @@ class _ProfileTabState extends State<ProfileTab> {
   final _addressController = TextEditingController();
   final _emailController = TextEditingController();
   bool _editing = false;
-  
+
   String? _lastSyncedUid;
 
   @override
@@ -37,9 +37,15 @@ class _ProfileTabState extends State<ProfileTab> {
         email: _emailController.text,
       );
       setState(() => _editing = false);
-      if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Updated")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Profile Updated")));
     } catch (e) {
-      if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
@@ -47,18 +53,26 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
     final user = userProvider.userModel;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     if (userProvider.errorMessage != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(screenWidth * 0.04),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              const Text("Failed to load profile", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              Icon(Icons.error, color: Colors.red, size: screenWidth * 0.12),
+              SizedBox(height: screenHeight * 0.02),
+              Text(
+                "Failed to load profile",
+                style: TextStyle(
+                  fontSize: screenWidth * 0.045,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.01),
               Text(userProvider.errorMessage!, textAlign: TextAlign.center),
             ],
           ),
@@ -66,25 +80,24 @@ class _ProfileTabState extends State<ProfileTab> {
       );
     }
 
-    if (user == null) return const Center(child: CircularProgressIndicator());
+    if (user == null) return Center(child: CircularProgressIndicator());
 
-    if (_lastSyncedUid != user.uid || (_lastSyncedUid == null && user != null)) {
-       if (!_editing) {
-          _nameController.text = user.name ?? '';
-          _addressController.text = user.address ?? '';
-          _emailController.text = user.email ?? '';
-          _lastSyncedUid = user.uid;
-       }
+    if (_lastSyncedUid != user.uid ||
+        (_lastSyncedUid == null && user != null)) {
+      if (!_editing) {
+        _nameController.text = user.name ?? '';
+        _addressController.text = user.address ?? '';
+        _emailController.text = user.email ?? '';
+        _lastSyncedUid = user.uid;
+      }
     }
 
-    final screenHeight = MediaQuery.of(context).size.height;
     final headerHeight = screenHeight * 0.2;
 
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 🎨 Header with Avatar
             Stack(
               alignment: Alignment.center,
               clipBehavior: Clip.none,
@@ -94,21 +107,25 @@ class _ProfileTabState extends State<ProfileTab> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(screenWidth * 0.08),
+                      bottomRight: Radius.circular(screenWidth * 0.08),
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: -50,
+                  bottom: -screenHeight * 0.07,
                   child: CircleAvatar(
-                    radius: 60,
+                    radius: screenWidth * 0.15,
                     backgroundColor: Colors.white,
                     child: CircleAvatar(
-                      radius: 55,
+                      radius: screenWidth * 0.14,
                       backgroundColor: Colors.grey[200],
-                      child: const Icon(Icons.person, size: 60, color: Colors.grey),
+                      child: Icon(
+                        Icons.person,
+                        size: screenWidth * 0.15,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
@@ -117,43 +134,70 @@ class _ProfileTabState extends State<ProfileTab> {
                     top: MediaQuery.of(context).padding.top + 10,
                     right: 10,
                     child: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white),
+                      icon: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: screenWidth * 0.06,
+                      ),
                       onPressed: () => setState(() => _editing = true),
                     ),
                   ),
               ],
             ),
-            const SizedBox(height: 60),
-            
-            // 📝 User Info Section
+            SizedBox(height: screenHeight * 0.08),
+
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: Column(
                 children: [
-                   Text(
+                  Text(
                     user.name ?? "Set Name",
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.055,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 5),
+                  SizedBox(height: screenHeight * 0.006),
                   Text(
                     user.phone,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.04,
+                      color: Colors.grey[600],
+                    ),
                   ),
-                  const Divider(height: 40),
-                  
-                  _buildField("Address", _addressController, Icons.location_on),
-                  _buildField("Email", _emailController, Icons.email),
-                  
-                  const SizedBox(height: 30),
+                  Divider(height: screenHeight * 0.05),
 
-                  // 🛡️ KYC Verification Section
+                  _buildField(
+                    "Name",
+                    _nameController,
+                    Icons.person,
+                    screenWidth,
+                    screenHeight,
+                  ),
+                  _buildField(
+                    "Address",
+                    _addressController,
+                    Icons.location_on,
+                    screenWidth,
+                    screenHeight,
+                  ),
+                  _buildField(
+                    "Email",
+                    _emailController,
+                    Icons.email,
+                    screenWidth,
+                    screenHeight,
+                  ),
+
+                  SizedBox(height: screenHeight * 0.04),
+
                   if (!_editing) ...[
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(screenWidth * 0.04),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(screenWidth * 0.04),
                         border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Column(
@@ -162,35 +206,60 @@ class _ProfileTabState extends State<ProfileTab> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 "KYC Verification",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              _getStatusBadge(user.verificationStatus),
+                              _getStatusBadge(
+                                user.verificationStatus,
+                                screenWidth,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: screenHeight * 0.012),
                           Text(
                             _getStatusMessage(user.verificationStatus),
-                            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.033,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                          if (user.verificationStatus != 'verified' && user.verificationStatus != 'pending') ...[
-                            const SizedBox(height: 15),
+                          if (user.verificationStatus != 'verified' &&
+                              user.verificationStatus != 'pending') ...[
+                            SizedBox(height: screenHeight * 0.02),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                   Navigator.push(
+                                  Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const KYCScreen()),
+                                    MaterialPageRoute(
+                                      builder: (context) => const KYCScreen(),
+                                    ),
                                   );
                                 },
-                                icon: const Icon(Icons.shield_outlined, size: 18),
-                                label: Text(user.verificationStatus == 'rejected' ? "Re-submit KYC" : "Complete KYC"),
+                                icon: Icon(
+                                  Icons.shield_outlined,
+                                  size: screenWidth * 0.045,
+                                ),
+                                label: Text(
+                                  user.verificationStatus == 'rejected'
+                                      ? "Re-submit KYC"
+                                      : "Complete KYC",
+                                ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).primaryColor,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).primaryColor,
                                   foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      screenWidth * 0.025,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -198,9 +267,9 @@ class _ProfileTabState extends State<ProfileTab> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: screenHeight * 0.04),
                   ],
-                  
+
                   if (_editing)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -215,22 +284,36 @@ class _ProfileTabState extends State<ProfileTab> {
                                 _emailController.text = user.email ?? '';
                               });
                             },
-                            style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
-                            child: const Text("Cancel"),
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: screenHeight * 0.015,
+                              ),
+                            ),
+                            child: Text(
+                              "Cancel",
+                              style: TextStyle(fontSize: screenWidth * 0.035),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: screenWidth * 0.05),
                         Expanded(
                           child: ElevatedButton(
                             onPressed: _save,
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
-                            child: const Text("Save Changes"),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: screenHeight * 0.015,
+                              ),
+                            ),
+                            child: Text(
+                              "Save Changes",
+                              style: TextStyle(fontSize: screenWidth * 0.035),
+                            ),
                           ),
                         ),
                       ],
                     )
                   else
-                     const SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.025),
                 ],
               ),
             ),
@@ -240,7 +323,7 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  Widget _getStatusBadge(String status) {
+  Widget _getStatusBadge(String status, double screenWidth) {
     Color color;
     String label;
     IconData icon;
@@ -268,20 +351,27 @@ class _ProfileTabState extends State<ProfileTab> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.025,
+        vertical: screenWidth * 0.012,
+      ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(screenWidth * 0.05),
         border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 5),
+          Icon(icon, size: screenWidth * 0.035, color: color),
+          SizedBox(width: screenWidth * 0.012),
           Text(
             label,
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: color,
+              fontSize: screenWidth * 0.03,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -301,22 +391,29 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
-  Widget _buildField(String label, TextEditingController controller, IconData icon) {
+  Widget _buildField(
+    String label,
+    TextEditingController controller,
+    IconData icon,
+    double screenWidth,
+    double screenHeight,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.012),
       child: TextField(
         controller: controller,
         enabled: _editing,
+        style: TextStyle(fontSize: screenWidth * 0.04),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon),
+          prefixIcon: Icon(icon, size: screenWidth * 0.05),
           labelText: label,
           filled: !_editing,
           fillColor: _editing ? null : Colors.grey[100],
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(screenWidth * 0.03),
             borderSide: BorderSide(color: Colors.grey[300]!),
           ),
         ),

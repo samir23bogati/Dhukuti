@@ -33,15 +33,14 @@ class _HomeTabState extends State<HomeTab> {
             "Live Metal Rates",
             style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
 
           _buildPriceCard("Silver", silverPrice, isLoading, screenWidth, Colors.blueGrey),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.012),
           _buildPriceCard("Gold (Hallmark)", goldPrice, isLoading, screenWidth, Colors.orange),
 
-          const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.035),
 
-          // 📊 Price Chart Section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -60,14 +59,14 @@ class _HomeTabState extends State<HomeTab> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.012),
           
           Container(
             height: screenHeight * 0.3,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(screenWidth * 0.04),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(screenWidth * 0.04),
               boxShadow: [
                 BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))
               ],
@@ -79,7 +78,7 @@ class _HomeTabState extends State<HomeTab> {
                     _getChartData(_selectedMetal, _timeRange),
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: screenHeight * 0.012),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: ['24h', '1W', '1M', '1Y'].map((range) {
@@ -87,17 +86,17 @@ class _HomeTabState extends State<HomeTab> {
                     return GestureDetector(
                       onTap: () => setState(() => _timeRange = range),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.015),
                         decoration: BoxDecoration(
                           color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(screenWidth * 0.05),
                         ),
                         child: Text(
                           range,
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.grey,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 12,
+                            fontSize: screenWidth * 0.03,
                           ),
                         ),
                       ),
@@ -108,19 +107,19 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: screenHeight * 0.035),
 
           Text(
             "Market Status",
             style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenHeight * 0.015),
           
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(screenWidth * 0.04),
             decoration: BoxDecoration(
               color: marketProvider.isMarketOpen ? Colors.green.shade50 : Colors.red.shade50,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(screenWidth * 0.03),
               border: Border.all(color: marketProvider.isMarketOpen ? Colors.green.shade200 : Colors.red.shade200),
             ),
             child: Row(
@@ -128,19 +127,21 @@ class _HomeTabState extends State<HomeTab> {
                 Icon(
                   marketProvider.isMarketOpen ? Icons.lock_open : Icons.lock,
                   color: marketProvider.isMarketOpen ? Colors.green : Colors.red,
+                  size: screenWidth * 0.06,
                 ),
-                const SizedBox(width: 15),
+                SizedBox(width: screenWidth * 0.04),
                 Text(
                   marketProvider.marketStatusMessage,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.04,
                     color: marketProvider.isMarketOpen ? Colors.green : Colors.red,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 0.025),
         ],
       ),
     );
@@ -182,7 +183,7 @@ class _HomeTabState extends State<HomeTab> {
   Widget _buildPriceCard(String title, double? price, bool isLoading, double screenWidth, Color iconColor) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.03)),
       child: Padding(
         padding: EdgeInsets.all(screenWidth * 0.04),
         child: Row(
@@ -190,24 +191,24 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             Row(
               children: [
-                Icon(Icons.diamond, color: iconColor, size: 24),
-                const SizedBox(width: 12),
+                Icon(Icons.diamond, color: iconColor, size: screenWidth * 0.06),
+                SizedBox(width: screenWidth * 0.03),
                 Text(title, style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.w500)),
               ],
             ),
             if (isLoading)
-              const SizedBox(
-                width: 20,
-                height: 20,
+              SizedBox(
+                width: screenWidth * 0.05,
+                height: screenWidth * 0.05,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             else if (price == null)
-              const Text("Error", style: TextStyle(color: Colors.red))
+              Text("Error", style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.04))
             else
               Text(
                 "Rs. ${price.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: screenWidth * 0.045,
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
                 ),

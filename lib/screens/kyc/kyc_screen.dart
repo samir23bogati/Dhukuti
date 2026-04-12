@@ -74,6 +74,8 @@ class _KYCScreenState extends State<KYCScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     final user = context.watch<UserProvider>().userModel;
     final status = user?.verificationStatus ?? 'unverified';
 
@@ -81,30 +83,33 @@ class _KYCScreenState extends State<KYCScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text("KYC Verification")),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.hourglass_empty, size: 80, color: Colors.orange),
-              const SizedBox(height: 20),
-              const Text(
-                "Verification Pending",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
-                child: Text(
-                  "Your documents are being reviewed by the admin. This usually takes 24-48 hours.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+          child: Padding(
+            padding: EdgeInsets.all(screenWidth * 0.06),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.hourglass_empty, size: screenWidth * 0.2, color: Colors.orange),
+                SizedBox(height: screenHeight * 0.03),
+                Text(
+                  "Verification Pending",
+                  style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Go Back"),
-              ),
-            ],
+                SizedBox(height: screenHeight * 0.015),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Text(
+                    "Your documents are being reviewed by the admin. This usually takes 24-48 hours.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.035),
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.04),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Go Back", style: TextStyle(fontSize: screenWidth * 0.04)),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -114,23 +119,26 @@ class _KYCScreenState extends State<KYCScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text("KYC Verification")),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.verified, size: 80, color: Colors.green),
-              const SizedBox(height: 20),
-              const Text(
-                "Verified",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              const Text("Your account is verified and ready for trading."),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Go Back"),
-              ),
-            ],
+          child: Padding(
+            padding: EdgeInsets.all(screenWidth * 0.06),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.verified, size: screenWidth * 0.2, color: Colors.green),
+                SizedBox(height: screenHeight * 0.03),
+                Text(
+                  "Verified",
+                  style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: screenHeight * 0.015),
+                Text("Your account is verified and ready for trading.", style: TextStyle(fontSize: screenWidth * 0.035)),
+                SizedBox(height: screenHeight * 0.04),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Go Back", style: TextStyle(fontSize: screenWidth * 0.04)),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -139,37 +147,37 @@ class _KYCScreenState extends State<KYCScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Submit KYC")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (status == 'rejected') ...[
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(screenWidth * 0.03),
                 decoration: BoxDecoration(
                   color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(screenWidth * 0.02),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error, color: Colors.red),
-                    const SizedBox(width: 10),
+                    Icon(Icons.error, color: Colors.red, size: screenWidth * 0.06),
+                    SizedBox(width: screenWidth * 0.025),
                     Expanded(
                       child: Text(
                         "Rejected: ${user?.rejectionReason ?? 'Please re-upload clear documents.'}",
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.035),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.025),
             ],
-            const Text(
+            Text(
               "Upload Citizenship (Nagarikta)",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: screenHeight * 0.02),
             Row(
               children: [
                 Expanded(
@@ -177,37 +185,40 @@ class _KYCScreenState extends State<KYCScreen> {
                     title: "Front Side",
                     image: _frontImage,
                     onTap: () => _pickImage(ImageSource.gallery, 'front'),
-                    height: size.height * 0.15,
+                    height: screenHeight * 0.15,
+                    screenWidth: screenWidth,
                   ),
                 ),
-                const SizedBox(width: 15),
+                SizedBox(width: screenWidth * 0.04),
                 Expanded(
                   child: _UploadCard(
                     title: "Back Side",
                     image: _backImage,
                     onTap: () => _pickImage(ImageSource.gallery, 'back'),
-                    height: size.height * 0.15,
+                    height: screenHeight * 0.15,
+                    screenWidth: screenWidth,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 25),
-            const Text(
+            SizedBox(height: screenHeight * 0.03),
+            Text(
               "Upload Selfie",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: screenHeight * 0.02),
             _UploadCard(
               title: "Selfie Holding ID",
               image: _selfieImage,
               onTap: () => _pickImage(ImageSource.camera, 'selfie'),
-              height: size.height * 0.25,
+              height: screenHeight * 0.25,
               width: double.infinity,
+              screenWidth: screenWidth,
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 0.05),
             SizedBox(
               width: double.infinity,
-              height: 50,
+              height: screenHeight * 0.07,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
@@ -215,8 +226,8 @@ class _KYCScreenState extends State<KYCScreen> {
                   foregroundColor: Colors.white,
                 ),
                 child: _isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Submit Documents", style: TextStyle(fontSize: 16)),
+                    ? SizedBox(width: screenWidth * 0.06, height: screenWidth * 0.06, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text("Submit Documents", style: TextStyle(fontSize: screenWidth * 0.04)),
               ),
             ),
           ],
@@ -232,6 +243,7 @@ class _UploadCard extends StatelessWidget {
   final VoidCallback onTap;
   final double height;
   final double? width;
+  final double screenWidth;
 
   const _UploadCard({
     required this.title,
@@ -239,6 +251,7 @@ class _UploadCard extends StatelessWidget {
     required this.onTap,
     required this.height,
     this.width,
+    required this.screenWidth,
   });
 
   @override
@@ -250,8 +263,8 @@ class _UploadCard extends StatelessWidget {
         width: width,
         decoration: BoxDecoration(
           color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade400, style: BorderStyle.solid),
+          borderRadius: BorderRadius.circular(screenWidth * 0.03),
+          border: Border.all(color: Colors.grey.shade400),
           image: image != null
               ? DecorationImage(image: FileImage(image!), fit: BoxFit.cover)
               : null,
@@ -260,18 +273,18 @@ class _UploadCard extends StatelessWidget {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.add_a_photo, color: Colors.grey, size: 30),
-                  const SizedBox(height: 5),
-                  Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Icon(Icons.add_a_photo, color: Colors.grey, size: screenWidth * 0.08),
+                  SizedBox(height: screenWidth * 0.02),
+                  Text(title, style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.03)),
                 ],
               )
             : Container(
                 alignment: Alignment.bottomRight,
-                padding: const EdgeInsets.all(8),
-                child: const CircleAvatar(
+                padding: EdgeInsets.all(screenWidth * 0.02),
+                child: CircleAvatar(
                   backgroundColor: Colors.white,
-                  radius: 12,
-                  child: Icon(Icons.edit, size: 14, color: Colors.blue),
+                  radius: screenWidth * 0.03,
+                  child: Icon(Icons.edit, size: screenWidth * 0.035, color: Colors.blue),
                 ),
               ),
       ),

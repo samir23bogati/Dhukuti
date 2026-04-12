@@ -14,9 +14,10 @@ class TransactionHistoryScreen extends StatelessWidget {
     final userProvider = context.watch<UserProvider>();
     final user = userProvider.userModel;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text("Please log in to view history")));
+      return Scaffold(body: Center(child: Text("Please log in to view history", style: TextStyle(fontSize: screenWidth * 0.04))));
     }
 
     return Scaffold(
@@ -32,14 +33,14 @@ class TransactionHistoryScreen extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(child: Text("Error: ${snapshot.error}", style: TextStyle(fontSize: screenWidth * 0.04)));
           }
           final docs = snapshot.data?.docs ?? [];
           if (docs.isEmpty) {
-            return const Center(child: Text("No transactions yet."));
+            return Center(child: Text("No transactions yet.", style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.grey)));
           }
 
           return ListView.builder(
@@ -53,22 +54,30 @@ class TransactionHistoryScreen extends StatelessWidget {
               final isBuy = tx.type == TransactionType.buy;
 
               return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: EdgeInsets.only(bottom: screenHeight * 0.015),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(screenWidth * 0.03)),
                 child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: 8),
+                  contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
                   leading: CircleAvatar(
                     backgroundColor: isBuy ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
                     child: Icon(
                       isBuy ? Icons.arrow_downward : Icons.arrow_upward,
                       color: isBuy ? Colors.green : Colors.red,
+                      size: screenWidth * 0.05,
                     ),
                   ),
-                  title: Text(
-                    "${tx.type.name.toUpperCase()} ${tx.metalType.toUpperCase()}",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${tx.type.name.toUpperCase()} ${tx.metalType.toUpperCase()}",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.038),
+                        ),
+                      ),
+                      _buildStatusBadge(tx.status, screenWidth),
+                    ],
                   ),
-                  subtitle: Text(DateFormat('MMM d, yyyy').format(tx.timestamp)),
+                  subtitle: Text(DateFormat('MMM d, yyyy').format(tx.timestamp), style: TextStyle(fontSize: screenWidth * 0.03)),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -78,9 +87,10 @@ class TransactionHistoryScreen extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: isBuy ? Colors.green : Colors.red,
+                          fontSize: screenWidth * 0.038,
                         ),
                       ),
-                      Text("${tx.quantityTola} Tola", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text("${tx.quantityTola} Tola", style: TextStyle(fontSize: screenWidth * 0.03, color: Colors.grey)),
                     ],
                   ),
                   onTap: () {
@@ -96,6 +106,7 @@ class TransactionHistoryScreen extends StatelessWidget {
   }
 
   void _showInvoice(BuildContext context, TransactionModel tx, String name, String phone) {
+    final screenWidth = MediaQuery.of(context).size.width;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -103,12 +114,12 @@ class TransactionHistoryScreen extends StatelessWidget {
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 100,
+          top: screenWidth * 0.25,
         ),
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(screenWidth * 0.05)),
           ),
           child: SingleChildScrollView(
             child: InvoiceView(
@@ -117,6 +128,44 @@ class TransactionHistoryScreen extends StatelessWidget {
               userPhone: phone,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(TransactionStatus status, double screenWidth) {
+    Color color;
+    String text;
+    switch (status) {
+      case TransactionStatus.pending:
+        color = Colors.orange;
+        text = "PENDING";
+        break;
+      case TransactionStatus.approved:
+        color = Colors.green;
+        text = "APPROVED";
+        break;
+      case TransactionStatus.rejected:
+        color = Colors.red;
+        text = "REJECTED";
+        break;
+      case TransactionStatus.completed:
+        color = Colors.blue;
+        text = "COMPLETED";
+        break;
+    }
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02, vertical: screenWidth * 0.005),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(screenWidth * 0.03),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: screenWidth * 0.025,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

@@ -84,38 +84,40 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     
     return Scaffold(
       appBar: AppBar(title: const Text("KYC Review")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "User: ${widget.userData['name'] ?? 'N/A'}",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
             ),
             Text("Phone: ${widget.userData['phone']}"),
-            const Divider(height: 40),
+            Divider(height: screenHeight * 0.04),
             
-            const Text("Citizenship Front", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _buildImage(widget.userData['citizenshipFrontUrl'], size.height * 0.25),
+            Text("Citizenship Front", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+            SizedBox(height: screenHeight * 0.01),
+            _buildImage(widget.userData['citizenshipFrontUrl'], screenHeight * 0.22, screenWidth),
             
-            const SizedBox(height: 30),
-            const Text("Citizenship Back", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _buildImage(widget.userData['citizenshipBackUrl'], size.height * 0.25),
+            SizedBox(height: screenHeight * 0.03),
+            Text("Citizenship Back", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+            SizedBox(height: screenHeight * 0.01),
+            _buildImage(widget.userData['citizenshipBackUrl'], screenHeight * 0.22, screenWidth),
             
-            const SizedBox(height: 30),
-            const Text("Selfie", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _buildImage(widget.userData['selfieUrl'], size.height * 0.3),
+            SizedBox(height: screenHeight * 0.03),
+            Text("Selfie", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+            SizedBox(height: screenHeight * 0.01),
+            _buildImage(widget.userData['selfieUrl'], screenHeight * 0.28, screenWidth),
             
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 0.04),
             if (_isProcessing)
-              const Center(child: CircularProgressIndicator())
+              Center(child: CircularProgressIndicator())
             else
               Row(
                 children: [
@@ -124,43 +126,45 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                       ),
                       onPressed: _showRejectDialog,
-                      child: const Text("REJECT"),
+                      child: Text("REJECT", style: TextStyle(fontSize: screenWidth * 0.04)),
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth * 0.05),
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                       ),
                       onPressed: () => _updateStatus('verified'),
-                      child: const Text("APPROVE"),
+                      child: Text("APPROVE", style: TextStyle(fontSize: screenWidth * 0.04)),
                     ),
                   ),
                 ],
               ),
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 0.05),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildImage(String? url, double height) {
+  Widget _buildImage(String? url, double height, double screenWidth) {
+    final borderRadius = screenWidth * 0.03;
+    
     if (url == null || url.isEmpty) {
       return Container(
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
-        child: const Center(child: Text("Image not available")),
+        child: Center(child: Text("Image not available", style: TextStyle(fontSize: screenWidth * 0.04))),
       );
     }
 
@@ -179,19 +183,21 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(color: Colors.grey[300]!),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
           child: Image.network(
             url,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator(value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                  : null));
             },
-            errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.broken_image)),
+            errorBuilder: (context, error, stackTrace) => Center(child: Icon(Icons.broken_image, size: screenWidth * 0.1)),
           ),
         ),
       ),

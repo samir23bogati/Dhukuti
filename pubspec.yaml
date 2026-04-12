@@ -27,6 +27,9 @@ dependencies:
   url_launcher: ^6.3.2
   image_picker: ^1.1.2
   pinput: ^5.0.0
+  pdf: ^3.11.1
+  path_provider: ^2.1.5
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:

@@ -65,11 +65,7 @@ class _TradeTabState extends State<TradeTab> {
         quantityTola: qty,
       );
       if (mounted) {
-        String msg = "${_metalType.toUpperCase()} ${type.name.toUpperCase()} Success!";
-        if (type == TransactionType.sell) {
-          msg += " (1% fee deducted)";
-        }
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        _showPendingSuccessDialog(type);
         _quantityController.clear();
       }
     } catch (e) {
@@ -79,6 +75,58 @@ class _TradeTabState extends State<TradeTab> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showPendingSuccessDialog(TransactionType type) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.hourglass_top, color: Colors.orange, size: screenWidth * 0.06),
+            SizedBox(width: screenWidth * 0.02),
+            Text("Request Submitted", style: TextStyle(fontSize: screenWidth * 0.045)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Your ${_metalType.toUpperCase()} ${type == TransactionType.buy ? 'Purchase' : 'Sale'} request has been submitted for admin approval.",
+              style: TextStyle(fontSize: screenWidth * 0.038),
+            ),
+            SizedBox(height: screenWidth * 0.03),
+            Container(
+              padding: EdgeInsets.all(screenWidth * 0.03),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(screenWidth * 0.02),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange, size: screenWidth * 0.05),
+                  SizedBox(width: screenWidth * 0.02),
+                  Expanded(
+                    child: Text(
+                      "You will be notified once approved. Check your transaction history for status updates.",
+                      style: TextStyle(fontSize: screenWidth * 0.03),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK", style: TextStyle(fontSize: screenWidth * 0.038)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _launchWhatsApp() async {
@@ -122,7 +170,7 @@ class _TradeTabState extends State<TradeTab> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: _launchWhatsApp,
-        child: const Icon(Icons.chat, color: Colors.white),
+        child: Icon(Icons.chat, color: Colors.white, size: screenWidth * 0.07),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(screenWidth * 0.04),
@@ -136,25 +184,25 @@ class _TradeTabState extends State<TradeTab> {
                 child: Column(
                   children: [
                     Text(formattedDate, style: TextStyle(fontSize: screenWidth * 0.04)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: screenHeight * 0.005),
                     Text(formattedTime, style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    const Divider(),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.015),
+                    Divider(),
+                    SizedBox(height: screenHeight * 0.015),
                     Text("Trading Hours: 11:00 AM - 5:00 PM", style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.03)),
-                    const SizedBox(height: 10),
+                    SizedBox(height: screenHeight * 0.015),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 16,
-                          height: 16,
+                          width: screenWidth * 0.04,
+                          height: screenWidth * 0.04,
                           decoration: BoxDecoration(
                             color: isMarketOpen ? Colors.green : Colors.red,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: screenWidth * 0.02),
                         Text(
                           marketStatusMsg,
                           style: TextStyle(
@@ -197,15 +245,16 @@ class _TradeTabState extends State<TradeTab> {
                 TextField(
                   controller: _quantityController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: TextStyle(fontSize: screenWidth * 0.04),
                   decoration: InputDecoration(
                     labelText: "Quantity (${_metalType.toUpperCase()} Tola)",
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.shopping_basket_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(screenWidth * 0.03)),
+                    prefixIcon: Icon(Icons.shopping_basket_outlined, size: screenWidth * 0.06),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.025),
                 if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
+                  Center(child: CircularProgressIndicator())
                 else
                   Row(
                     children: [
@@ -214,60 +263,57 @@ class _TradeTabState extends State<TradeTab> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green, 
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                           ),
                           onPressed: () => _handleTrade(TransactionType.buy),
-                          child: const Text("BUY NOW"),
+                          child: Text("BUY NOW", style: TextStyle(fontSize: screenWidth * 0.04)),
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      SizedBox(width: screenWidth * 0.05),
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red, 
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                           ),
                           onPressed: () => _handleTrade(TransactionType.sell),
-                          child: const Text("SELL NOW"),
+                          child: Text("SELL NOW", style: TextStyle(fontSize: screenWidth * 0.04)),
                         ),
                       ),
                     ],
                   ),
               ] else ...[
-                // 🛡️ KYC Required Prompt
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(screenWidth * 0.05),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
                     border: Border.all(color: Colors.blue.shade200),
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.shield_outlined, size: 50, color: Colors.blue),
-                      const SizedBox(height: 15),
-                      const Text(
+                      Icon(Icons.shield_outlined, size: screenWidth * 0.12, color: Colors.blue),
+                      SizedBox(height: screenHeight * 0.02),
+                      Text(
                         "Verification Required",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
+                      SizedBox(height: screenHeight * 0.012),
+                      Text(
                         "You must complete your KYC verification to start trading Gold and Silver.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.035),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: screenHeight * 0.025),
                       ElevatedButton(
                         onPressed: () {
-                          // Logic to switch to Profile Tab or open KYC Screen
-                          // For simplicity, let's open KYC Screen directly
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const KYCScreen()),
                           );
                         },
-                        child: const Text("Verify Now"),
+                        child: Text("Verify Now", style: TextStyle(fontSize: screenWidth * 0.038)),
                       ),
                     ],
                   ),
@@ -275,20 +321,20 @@ class _TradeTabState extends State<TradeTab> {
               ]
             ] else ...[
                Container(
-                 padding: const EdgeInsets.all(16),
+                 padding: EdgeInsets.all(screenWidth * 0.04),
                  decoration: BoxDecoration(
                    color: Colors.red.shade50,
-                   borderRadius: BorderRadius.circular(8),
+                   borderRadius: BorderRadius.circular(screenWidth * 0.02),
                    border: Border.all(color: Colors.red.shade200),
                  ),
-                 child: const Column(
+                 child: Column(
                    children: [
-                     Icon(Icons.lock_clock, size: 48, color: Colors.red),
-                     SizedBox(height: 10),
+                     Icon(Icons.lock_clock, size: screenWidth * 0.12, color: Colors.red),
+                     SizedBox(height: screenHeight * 0.012),
                      Text(
                        "Trading is currently paused.",
                        textAlign: TextAlign.center,
-                       style: TextStyle(fontSize: 16, color: Colors.red),
+                       style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.red),
                      ),
                    ],
                  ),

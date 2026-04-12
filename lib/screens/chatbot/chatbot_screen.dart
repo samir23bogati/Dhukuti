@@ -86,6 +86,7 @@ Dhukuti AI Assistant Knowledge Base:
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +98,7 @@ Dhukuti AI Assistant Knowledge Base:
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(screenWidth * 0.04),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
@@ -105,23 +106,23 @@ Dhukuti AI Assistant Knowledge Base:
                 return Align(
                   alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    margin: EdgeInsets.symmetric(vertical: screenHeight * 0.006),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035, vertical: screenHeight * 0.012),
                     constraints: BoxConstraints(maxWidth: screenWidth * 0.75),
                     decoration: BoxDecoration(
                       color: isUser ? Theme.of(context).primaryColor : Colors.grey[200],
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(15),
-                        topRight: const Radius.circular(15),
-                        bottomLeft: Radius.circular(isUser ? 15 : 0),
-                        bottomRight: Radius.circular(isUser ? 0 : 15),
+                        topLeft: Radius.circular(screenWidth * 0.04),
+                        topRight: Radius.circular(screenWidth * 0.04),
+                        bottomLeft: Radius.circular(isUser ? screenWidth * 0.04 : 0),
+                        bottomRight: Radius.circular(isUser ? 0 : screenWidth * 0.04),
                       ),
                     ),
                     child: Text(
                       msg['content']!,
                       style: TextStyle(
                         color: isUser ? Colors.white : Colors.black87,
-                        fontSize: 14,
+                        fontSize: screenWidth * 0.035,
                       ),
                     ),
                   ),
@@ -130,7 +131,7 @@ Dhukuti AI Assistant Knowledge Base:
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(screenWidth * 0.02),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -145,21 +146,22 @@ Dhukuti AI Assistant Knowledge Base:
                     decoration: InputDecoration(
                       hintText: "Type your question...",
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(screenWidth * 0.08),
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
                       fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                      contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: screenWidth * 0.02),
                 IconButton(
                   onPressed: _sendMessage,
-                  icon: const Icon(Icons.send),
+                  icon: Icon(Icons.send),
                   color: Theme.of(context).primaryColor,
+                  iconSize: screenWidth * 0.06,
                 ),
               ],
             ),
