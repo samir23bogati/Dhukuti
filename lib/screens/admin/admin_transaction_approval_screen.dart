@@ -12,16 +12,13 @@ class AdminTransactionApprovalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Pending Transactions"),
-      ),
+      appBar: AppBar(title: const Text("Pending Transactions")),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('transactions')
             .where('status', isEqualTo: 'pending')
-            .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,16 +30,26 @@ class AdminTransactionApprovalScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline, size: screenWidth * 0.16, color: Colors.green[300]),
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: screenWidth * 0.16,
+                    color: Colors.green[300],
+                  ),
                   SizedBox(height: screenWidth * 0.04),
                   Text(
                     "No pending transactions",
-                    style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: screenWidth * 0.02),
                   Text(
                     "All transactions have been reviewed",
-                    style: TextStyle(color: Colors.grey[600], fontSize: screenWidth * 0.035),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: screenWidth * 0.035,
+                    ),
                   ),
                 ],
               ),
@@ -54,7 +61,10 @@ class AdminTransactionApprovalScreen extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               final doc = snapshot.data!.docs[index];
-              final transaction = TransactionModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+              final transaction = TransactionModel.fromMap(
+                doc.data() as Map<String, dynamic>,
+                doc.id,
+              );
               return _TransactionCard(transaction: transaction);
             },
           );
@@ -82,7 +92,10 @@ class _TransactionCardState extends State<_TransactionCard> {
     try {
       final userProvider = context.read<UserProvider>();
       final adminId = userProvider.userModel?.uid ?? 'admin';
-      await context.read<MarketProvider>().approveTransaction(widget.transaction.id, adminId);
+      await context.read<MarketProvider>().approveTransaction(
+        widget.transaction.id,
+        adminId,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Transaction approved successfully")),
@@ -104,7 +117,10 @@ class _TransactionCardState extends State<_TransactionCard> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Reject Transaction", style: TextStyle(fontSize: screenWidth * 0.045)),
+        title: Text(
+          "Reject Transaction",
+          style: TextStyle(fontSize: screenWidth * 0.045),
+        ),
         content: TextField(
           controller: _reasonController,
           decoration: InputDecoration(
@@ -114,20 +130,34 @@ class _TransactionCardState extends State<_TransactionCard> {
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel", style: TextStyle(fontSize: screenWidth * 0.035))),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              "Cancel",
+              style: TextStyle(fontSize: screenWidth * 0.035),
+            ),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () async {
               if (_reasonController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please provide a rejection reason")),
+                  const SnackBar(
+                    content: Text("Please provide a rejection reason"),
+                  ),
                 );
                 return;
               }
               Navigator.pop(context);
               await _reject();
             },
-            child: Text("Reject", style: TextStyle(fontSize: screenWidth * 0.035)),
+            child: Text(
+              "Reject",
+              style: TextStyle(fontSize: screenWidth * 0.035),
+            ),
           ),
         ],
       ),
@@ -146,9 +176,9 @@ class _TransactionCardState extends State<_TransactionCard> {
       );
       _reasonController.clear();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Transaction rejected")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Transaction rejected")));
       }
     } catch (e) {
       if (mounted) {
@@ -198,15 +228,23 @@ class _TransactionCardState extends State<_TransactionCard> {
                           ),
                         ),
                         Text(
-                          DateFormat('MMM d, y h:mm a').format(widget.transaction.timestamp),
-                          style: TextStyle(color: Colors.grey[600], fontSize: screenWidth * 0.03),
+                          DateFormat(
+                            'MMM d, y h:mm a',
+                          ).format(widget.transaction.timestamp),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: screenWidth * 0.03,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.015),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.03,
+                    vertical: screenWidth * 0.015,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(screenWidth * 0.05),
@@ -223,15 +261,33 @@ class _TransactionCardState extends State<_TransactionCard> {
               ],
             ),
             Divider(height: screenHeight * 0.03),
-            _buildDetailRow("Transaction ID", "#${widget.transaction.id.toUpperCase().substring(0, 8)}", screenWidth),
+            _buildDetailRow(
+              "Transaction ID",
+              "#${widget.transaction.id.toUpperCase().substring(0, 8)}",
+              screenWidth,
+            ),
             _buildDetailRow("User ID", widget.transaction.userId, screenWidth),
-            _buildDetailRow("Quantity", "${widget.transaction.quantityTola.toStringAsFixed(2)} Tola", screenWidth),
-            _buildDetailRow("Rate/Tola", "Rs. ${widget.transaction.ratePerTola.toStringAsFixed(2)}", screenWidth),
+            _buildDetailRow(
+              "Quantity",
+              "${widget.transaction.quantityTola.toStringAsFixed(2)} Tola",
+              screenWidth,
+            ),
+            _buildDetailRow(
+              "Rate/Tola",
+              "Rs. ${widget.transaction.ratePerTola.toStringAsFixed(2)}",
+              screenWidth,
+            ),
             SizedBox(height: screenHeight * 0.01),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Total Amount", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.035)),
+                Text(
+                  "Total Amount",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.035,
+                  ),
+                ),
                 Text(
                   "Rs. ${widget.transaction.totalAmount.toStringAsFixed(2)}",
                   style: TextStyle(
@@ -253,10 +309,15 @@ class _TransactionCardState extends State<_TransactionCard> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
+                        padding: EdgeInsets.symmetric(
+                          vertical: screenHeight * 0.015,
+                        ),
                       ),
                       onPressed: _showRejectDialog,
-                      child: Text("REJECT", style: TextStyle(fontSize: screenWidth * 0.035)),
+                      child: Text(
+                        "REJECT",
+                        style: TextStyle(fontSize: screenWidth * 0.035),
+                      ),
                     ),
                   ),
                   SizedBox(width: screenWidth * 0.03),
@@ -265,10 +326,15 @@ class _TransactionCardState extends State<_TransactionCard> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
+                        padding: EdgeInsets.symmetric(
+                          vertical: screenHeight * 0.015,
+                        ),
                       ),
                       onPressed: _approve,
-                      child: Text("APPROVE", style: TextStyle(fontSize: screenWidth * 0.035)),
+                      child: Text(
+                        "APPROVE",
+                        style: TextStyle(fontSize: screenWidth * 0.035),
+                      ),
                     ),
                   ),
                 ],
@@ -285,8 +351,20 @@ class _TransactionCardState extends State<_TransactionCard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey[700], fontSize: screenWidth * 0.035)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.w500, fontSize: screenWidth * 0.035)),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: screenWidth * 0.035,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: screenWidth * 0.035,
+            ),
+          ),
         ],
       ),
     );

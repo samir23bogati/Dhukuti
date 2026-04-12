@@ -36,8 +36,9 @@ class TransactionModel {
       id: id,
       userId: map['userId'] ?? '',
       type: TransactionType.values.firstWhere(
-          (e) => e.toString() == 'TransactionType.${map['type']}',
-          orElse: () => TransactionType.buy),
+        (e) => e.toString() == 'TransactionType.${map['type']}',
+        orElse: () => TransactionType.buy,
+      ),
       metalType: map['metalType'] ?? 'silver',
       quantityTola: (map['quantityTola'] ?? 0).toDouble(),
       ratePerTola: (map['ratePerTola'] ?? 0).toDouble(),
@@ -46,8 +47,9 @@ class TransactionModel {
           ? DateTime.fromMillisecondsSinceEpoch(map['timestamp'])
           : DateTime.now(),
       status: TransactionStatus.values.firstWhere(
-          (e) => e.toString() == 'TransactionStatus.${map['status']}',
-          orElse: () => TransactionStatus.pending),
+        (e) => e.toString() == 'TransactionStatus.${map['status']}',
+        orElse: () => TransactionStatus.pending,
+      ),
       rejectionReason: map['rejectionReason'],
       approvedBy: map['approvedBy'],
       approvedAt: map['approvedAt'] != null
@@ -57,6 +59,21 @@ class TransactionModel {
   }
 
   Map<String, dynamic> toMap() {
+    String statusString;
+    switch (status) {
+      case TransactionStatus.pending:
+        statusString = 'pending';
+        break;
+      case TransactionStatus.approved:
+        statusString = 'approved';
+        break;
+      case TransactionStatus.rejected:
+        statusString = 'rejected';
+        break;
+      case TransactionStatus.completed:
+        statusString = 'completed';
+        break;
+    }
     return {
       'userId': userId,
       'type': type.toString().split('.').last,
@@ -65,7 +82,7 @@ class TransactionModel {
       'ratePerTola': ratePerTola,
       'totalAmount': totalAmount,
       'timestamp': timestamp.millisecondsSinceEpoch,
-      'status': status.toString().split('.').last,
+      'status': statusString,
       if (rejectionReason != null) 'rejectionReason': rejectionReason,
       if (approvedBy != null) 'approvedBy': approvedBy,
       if (approvedAt != null) 'approvedAt': approvedAt!.millisecondsSinceEpoch,
