@@ -1,4 +1,4 @@
-package com.example.dhukuti
+package com.dhukuti.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dhukuti"
+    namespace = "com.dhukuti.app"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
-        applicationId = "com.example.dhukuti"
+        applicationId = "com.dhukuti.app"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
         versionCode = 1
