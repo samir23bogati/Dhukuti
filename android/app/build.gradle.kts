@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.dhukuti"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

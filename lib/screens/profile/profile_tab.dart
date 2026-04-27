@@ -1,4 +1,5 @@
 import 'package:dhukuti/screens/kyc/kyc_screen.dart';
+import 'package:dhukuti/screens/privacy/privacy_policy_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dhukuti/models/user_model.dart';
@@ -191,7 +192,6 @@ class _ProfileTabState extends State<ProfileTab> {
 
                   SizedBox(height: screenHeight * 0.04),
 
-                  if (!_editing) ...[
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(screenWidth * 0.04),
@@ -268,7 +268,65 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.04),
-                  ],
+
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(screenWidth * 0.04),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Privacy Policy",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.012),
+                          Text(
+                            "Review our privacy policy to understand how we handle your data.",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.033,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PrivacyPolicyScreen(),
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.privacy_tip_outlined,
+                                size: screenWidth * 0.045,
+                              ),
+                              label: const Text("View Privacy Policy"),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: screenHeight * 0.015,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    screenWidth * 0.025,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   if (_editing)
                     Row(
