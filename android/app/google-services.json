@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:909002447320:android:424c855130c5d7afdb7aad",
+        "android_client_info": {
+          "package_name": "com.dhukuti.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1tooOKuYfgQeVa_mzIoqzN7hQevRa9Lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:909002447320:android:2a257c7a1e263235db7aad",
         "android_client_info": {
           "package_name": "com.example.dhukuti"
