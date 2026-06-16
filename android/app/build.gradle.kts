@@ -14,10 +14,10 @@ android {
         applicationId = "com.dhukuti.app"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
     }
-
+ 
      signingConfigs {
         create("release") {
             storeFile = file("dhukuti-release.jks") // app/ folder
