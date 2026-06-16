@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dhukuti/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,9 +46,9 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -67,9 +69,15 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
               Navigator.pop(context);
               _updateStatus('rejected');
@@ -86,7 +94,7 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
     final size = MediaQuery.of(context).size;
     final screenWidth = size.width;
     final screenHeight = size.height;
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text("KYC Review")),
       body: SingleChildScrollView(
@@ -96,25 +104,61 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
           children: [
             Text(
               "User: ${widget.userData['name'] ?? 'N/A'}",
-              style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: screenWidth * 0.05,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Text("Phone: ${widget.userData['phone']}"),
             Divider(height: screenHeight * 0.04),
-            
-            Text("Citizenship Front", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+
+            Text(
+              "Citizenship Front",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.04,
+              ),
+            ),
             SizedBox(height: screenHeight * 0.01),
-            _buildImage(widget.userData['citizenshipFrontUrl'], screenHeight * 0.22, screenWidth),
-            
+            _KycImage(
+              uid: widget.uid,
+              imageType: 'front',
+              height: screenHeight * 0.22,
+              screenWidth: screenWidth,
+            ),
+
             SizedBox(height: screenHeight * 0.03),
-            Text("Citizenship Back", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+            Text(
+              "Citizenship Back",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.04,
+              ),
+            ),
             SizedBox(height: screenHeight * 0.01),
-            _buildImage(widget.userData['citizenshipBackUrl'], screenHeight * 0.22, screenWidth),
-            
+            _KycImage(
+              uid: widget.uid,
+              imageType: 'back',
+              height: screenHeight * 0.22,
+              screenWidth: screenWidth,
+            ),
+
             SizedBox(height: screenHeight * 0.03),
-            Text("Selfie", style: TextStyle(fontWeight: FontWeight.bold, fontSize: screenWidth * 0.04)),
+            Text(
+              "Selfie",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.04,
+              ),
+            ),
             SizedBox(height: screenHeight * 0.01),
-            _buildImage(widget.userData['selfieUrl'], screenHeight * 0.28, screenWidth),
-            
+            _KycImage(
+              uid: widget.uid,
+              imageType: 'selfie',
+              height: screenHeight * 0.28,
+              screenWidth: screenWidth,
+            ),
+
             SizedBox(height: screenHeight * 0.04),
             if (_isProcessing)
               Center(child: CircularProgressIndicator())
@@ -126,10 +170,15 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                        padding: EdgeInsets.symmetric(
+                          vertical: screenHeight * 0.02,
+                        ),
                       ),
                       onPressed: _showRejectDialog,
-                      child: Text("REJECT", style: TextStyle(fontSize: screenWidth * 0.04)),
+                      child: Text(
+                        "REJECT",
+                        style: TextStyle(fontSize: screenWidth * 0.04),
+                      ),
                     ),
                   ),
                   SizedBox(width: screenWidth * 0.05),
@@ -138,10 +187,15 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                        padding: EdgeInsets.symmetric(
+                          vertical: screenHeight * 0.02,
+                        ),
                       ),
                       onPressed: () => _updateStatus('verified'),
-                      child: Text("APPROVE", style: TextStyle(fontSize: screenWidth * 0.04)),
+                      child: Text(
+                        "APPROVE",
+                        style: TextStyle(fontSize: screenWidth * 0.04),
+                      ),
                     ),
                   ),
                 ],
@@ -152,55 +206,95 @@ class _AdminKYCReviewScreenState extends State<AdminKYCReviewScreen> {
       ),
     );
   }
+}
 
-  Widget _buildImage(String? url, double height, double screenWidth) {
+class _KycImage extends StatelessWidget {
+  final String uid;
+  final String imageType;
+  final double height;
+  final double screenWidth;
+
+  const _KycImage({
+    required this.uid,
+    required this.imageType,
+    required this.height,
+    required this.screenWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final borderRadius = screenWidth * 0.03;
-    
-    if (url == null || url.isEmpty) {
-      return Container(
-        height: height,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        child: Center(child: Text("Image not available", style: TextStyle(fontSize: screenWidth * 0.04))),
-      );
-    }
 
-    return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => Dialog(
-            child: InteractiveViewer(
-              child: Image.network(url),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('kyc')
+          .doc(imageType)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            height: height,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Container(
+            height: height,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            child: Center(
+              child: Text(
+                "Image not available",
+                style: TextStyle(fontSize: screenWidth * 0.04),
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final base64String = data['data'] as String? ?? '';
+        final imageBytes = base64Decode(base64String);
+
+        return GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => Dialog(
+                child: InteractiveViewer(child: Image.memory(imageBytes)),
+              ),
+            );
+          },
+          child: Container(
+            height: height,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: Image.memory(
+                imageBytes,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Center(
+                  child: Icon(Icons.broken_image, size: screenWidth * 0.1),
+                ),
+              ),
             ),
           ),
         );
       },
-      child: Container(
-        height: height,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: Colors.grey[300]!),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: Image.network(
-            url,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(child: CircularProgressIndicator(value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                  : null));
-            },
-            errorBuilder: (context, error, stackTrace) => Center(child: Icon(Icons.broken_image, size: screenWidth * 0.1)),
-          ),
-        ),
-      ),
     );
   }
 }

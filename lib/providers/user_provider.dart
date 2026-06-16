@@ -1,8 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dhukuti/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -15,14 +16,58 @@ class UserProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  StreamSubscription<DocumentSnapshot>? _userSub;
+  bool _consolidated = false;
+
   UserProvider() {
     _init();
   }
 
+  @override
+  void dispose() {
+    _userSub?.cancel();
+    super.dispose();
+  }
+
   void _init() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
+      _userSub?.cancel();
+      _userSub = null;
+      _consolidated = false;
+
       if (user != null) {
-        _fetchUserDetails(user);
+        final docRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid);
+
+        docRef.get().then((snap) {
+          if (!snap.exists) {
+            docRef.set(
+              UserModel(
+                uid: user.uid,
+                phone: user.phoneNumber ?? '',
+                createdAt: DateTime.now(),
+                isAdmin: false,
+              ).toMap(),
+            );
+          }
+        });
+
+        _userSub = docRef.snapshots().listen(
+          (snap) {
+            if (snap.exists) {
+              _userModel = UserModel.fromMap(snap.data()!, user.uid);
+              _consolidateOrphanedData(user.uid);
+            }
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (e) {
+            debugPrint("Error listening to user: $e");
+            _errorMessage = e.toString();
+            notifyListeners();
+          },
+        );
       } else {
         _userModel = null;
         notifyListeners();
@@ -30,36 +75,72 @@ class UserProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> _fetchUserDetails(User user) async {
+  Future<void> _consolidateOrphanedData(String uid) async {
+    if (_consolidated || _userModel == null) return;
+    final user = _userModel!;
+
+    final hasMissingFields =
+        (user.email == null || user.email!.isEmpty) ||
+        (user.phone.isEmpty) ||
+        user.gender == null;
+    if (!hasMissingFields) return;
+
     try {
-      final doc = await FirebaseFirestore.instance
+      final query = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user.uid)
+          .where('name', isEqualTo: user.name)
           .get();
 
-      if (doc.exists) {
-        _userModel = UserModel.fromMap(doc.data()!, user.uid);
-      } else {
-        final newUser = UserModel(
-          uid: user.uid,
-          phone: user.phoneNumber ?? '',
-          createdAt: DateTime.now(),
-          isAdmin: false,
-        );
+      DocumentReference? sourceRef;
+      Map<String, dynamic>? sourceData;
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set(newUser.toMap());
-
-        _userModel = newUser;
+      for (final doc in query.docs) {
+        if (doc.id == uid) continue;
+        final kycSnap = await doc.reference.collection('kyc').get();
+        if (kycSnap.docs.isNotEmpty) {
+          sourceRef = doc.reference;
+          sourceData = doc.data();
+          break;
+        }
       }
 
-      notifyListeners();
+      if (sourceRef == null || sourceData == null) return;
+
+      _consolidated = true;
+
+      final kycDocs = await sourceRef.collection('kyc').get();
+      for (final kycDoc in kycDocs.docs) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection('kyc')
+            .doc(kycDoc.id)
+            .set(kycDoc.data());
+      }
+
+      final updates = <String, dynamic>{};
+      if (user.email == null || user.email!.isEmpty) {
+        updates['email'] = sourceData['email'];
+      }
+      if (user.phone.isEmpty) {
+        updates['phone'] = sourceData['phone'];
+      }
+      if (user.gender == null) {
+        updates['gender'] = sourceData['gender'];
+      }
+      updates['verificationStatus'] = 'pending';
+      updates.removeWhere((_, v) => v == null);
+
+      if (updates.isNotEmpty) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .update(updates);
+      }
+
+      debugPrint("Consolidated KYC data from $uid into current account");
     } catch (e) {
-      debugPrint("Error fetching user details: $e");
-      _errorMessage = e.toString();
-      notifyListeners();
+      debugPrint("Consolidation error: $e");
     }
   }
 
@@ -71,37 +152,31 @@ class UserProvider extends ChangeNotifier {
     if (_userModel == null) return;
 
     try {
-      final storageRef = FirebaseStorage.instance.ref();
       final uid = _userModel!.uid;
+      final uidRef = FirebaseFirestore.instance.collection('users').doc(uid);
 
-      final frontRef = storageRef.child('kyc/$uid/citizenship_front.jpg');
-      final backRef = storageRef.child('kyc/$uid/citizenship_back.jpg');
-      final selfieRef = storageRef.child('kyc/$uid/selfie.jpg');
+      final frontBase64 = base64Encode(await citizenshipFront.readAsBytes());
+      final backBase64 = base64Encode(await citizenshipBack.readAsBytes());
+      final selfieBase64 = base64Encode(await selfie.readAsBytes());
 
-      await frontRef.putFile(citizenshipFront);
-      await backRef.putFile(citizenshipBack);
-      await selfieRef.putFile(selfie);
+      await uidRef.update({'verificationStatus': 'pending'});
 
-      final frontUrl = await frontRef.getDownloadURL();
-      final backUrl = await backRef.getDownloadURL();
-      final selfieUrl = await selfieRef.getDownloadURL();
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update({
-        'verificationStatus': 'pending',
-        'citizenshipFrontUrl': frontUrl,
-        'citizenshipBackUrl': backUrl,
-        'selfieUrl': selfieUrl,
+      await uidRef.collection('kyc').doc('front').set({
+        'data': frontBase64,
+        'mimeType': 'image/jpeg',
       });
 
-      _userModel = _userModel!.copyWith(
-        verificationStatus: 'pending',
-        citizenshipFrontUrl: frontUrl,
-        citizenshipBackUrl: backUrl,
-        selfieUrl: selfieUrl,
-      );
+      await uidRef.collection('kyc').doc('back').set({
+        'data': backBase64,
+        'mimeType': 'image/jpeg',
+      });
+
+      await uidRef.collection('kyc').doc('selfie').set({
+        'data': selfieBase64,
+        'mimeType': 'image/jpeg',
+      });
+
+      _userModel = _userModel!.copyWith(verificationStatus: 'pending');
 
       notifyListeners();
     } catch (e) {
@@ -116,9 +191,7 @@ class UserProvider extends ChangeNotifier {
     String? rejectionReason,
   }) async {
     try {
-      final updates = <String, dynamic>{
-        'verificationStatus': status,
-      };
+      final updates = <String, dynamic>{'verificationStatus': status};
       if (rejectionReason != null) {
         updates['rejectionReason'] = rejectionReason;
       }

@@ -22,7 +22,9 @@ class _KYCScreenState extends State<KYCScreen> {
   Future<void> _pickImage(ImageSource source, String type) async {
     final XFile? pickedFile = await _picker.pickImage(
       source: source,
-      imageQuality: 70,
+      imageQuality: type == 'selfie' ? 40 : 70,
+      maxWidth: 1200,
+      maxHeight: 1200,
     );
 
     if (pickedFile != null) {
@@ -62,9 +64,9 @@ class _KYCScreenState extends State<KYCScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error submitting KYC: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error submitting KYC: $e")));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -88,11 +90,18 @@ class _KYCScreenState extends State<KYCScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.hourglass_empty, size: screenWidth * 0.2, color: Colors.orange),
+                Icon(
+                  Icons.hourglass_empty,
+                  size: screenWidth * 0.2,
+                  color: Colors.orange,
+                ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
                   "Verification Pending",
-                  style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.05,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: screenHeight * 0.015),
                 Padding(
@@ -100,13 +109,19 @@ class _KYCScreenState extends State<KYCScreen> {
                   child: Text(
                     "Your documents are being reviewed by the admin. This usually takes 24-48 hours.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.035),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: screenWidth * 0.035,
+                    ),
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.04),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("Go Back", style: TextStyle(fontSize: screenWidth * 0.04)),
+                  child: Text(
+                    "Go Back",
+                    style: TextStyle(fontSize: screenWidth * 0.04),
+                  ),
                 ),
               ],
             ),
@@ -124,18 +139,31 @@ class _KYCScreenState extends State<KYCScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.verified, size: screenWidth * 0.2, color: Colors.green),
+                Icon(
+                  Icons.verified,
+                  size: screenWidth * 0.2,
+                  color: Colors.green,
+                ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
                   "Verified",
-                  style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.05,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: screenHeight * 0.015),
-                Text("Your account is verified and ready for trading.", style: TextStyle(fontSize: screenWidth * 0.035)),
+                Text(
+                  "Your account is verified and ready for trading.",
+                  style: TextStyle(fontSize: screenWidth * 0.035),
+                ),
                 SizedBox(height: screenHeight * 0.04),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text("Go Back", style: TextStyle(fontSize: screenWidth * 0.04)),
+                  child: Text(
+                    "Go Back",
+                    style: TextStyle(fontSize: screenWidth * 0.04),
+                  ),
                 ),
               ],
             ),
@@ -160,12 +188,19 @@ class _KYCScreenState extends State<KYCScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error, color: Colors.red, size: screenWidth * 0.06),
+                    Icon(
+                      Icons.error,
+                      color: Colors.red,
+                      size: screenWidth * 0.06,
+                    ),
                     SizedBox(width: screenWidth * 0.025),
                     Expanded(
                       child: Text(
                         "Rejected: ${user?.rejectionReason ?? 'Please re-upload clear documents.'}",
-                        style: TextStyle(color: Colors.red, fontSize: screenWidth * 0.035),
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: screenWidth * 0.035,
+                        ),
                       ),
                     ),
                   ],
@@ -175,7 +210,10 @@ class _KYCScreenState extends State<KYCScreen> {
             ],
             Text(
               "Upload Citizenship (Nagarikta)",
-              style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: screenHeight * 0.02),
             Row(
@@ -204,7 +242,10 @@ class _KYCScreenState extends State<KYCScreen> {
             SizedBox(height: screenHeight * 0.03),
             Text(
               "Upload Selfie",
-              style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             SizedBox(height: screenHeight * 0.02),
             _UploadCard(
@@ -226,8 +267,18 @@ class _KYCScreenState extends State<KYCScreen> {
                   foregroundColor: Colors.white,
                 ),
                 child: _isSubmitting
-                    ? SizedBox(width: screenWidth * 0.06, height: screenWidth * 0.06, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text("Submit Documents", style: TextStyle(fontSize: screenWidth * 0.04)),
+                    ? SizedBox(
+                        width: screenWidth * 0.06,
+                        height: screenWidth * 0.06,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        "Submit Documents",
+                        style: TextStyle(fontSize: screenWidth * 0.04),
+                      ),
               ),
             ),
           ],
@@ -273,9 +324,19 @@ class _UploadCard extends StatelessWidget {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_a_photo, color: Colors.grey, size: screenWidth * 0.08),
+                  Icon(
+                    Icons.add_a_photo,
+                    color: Colors.grey,
+                    size: screenWidth * 0.08,
+                  ),
                   SizedBox(height: screenWidth * 0.02),
-                  Text(title, style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.03)),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: screenWidth * 0.03,
+                    ),
+                  ),
                 ],
               )
             : Container(
@@ -284,7 +345,11 @@ class _UploadCard extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Colors.white,
                   radius: screenWidth * 0.03,
-                  child: Icon(Icons.edit, size: screenWidth * 0.035, color: Colors.blue),
+                  child: Icon(
+                    Icons.edit,
+                    size: screenWidth * 0.035,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
       ),
