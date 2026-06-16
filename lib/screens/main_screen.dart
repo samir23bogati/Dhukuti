@@ -35,10 +35,15 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          isAdmin && _currentIndex == 0 ? "Admin Dashboard" :
-          _currentIndex == 0 ? "Dashboard" : 
-          _currentIndex == 1 ? "Portfolio" :
-          _currentIndex == 2 ? "Trade" : "Profile"
+          isAdmin && _currentIndex == 0
+              ? "Admin Dashboard"
+              : _currentIndex == 0
+              ? "Dashboard"
+              : _currentIndex == 1
+              ? "Portfolio"
+              : _currentIndex == 2
+              ? "Trade"
+              : "Profile",
         ),
       ),
       drawer: SizedBox(
@@ -47,8 +52,16 @@ class _MainScreenState extends State<MainScreen> {
           child: Column(
             children: [
               UserAccountsDrawerHeader(
-                accountName: Text(userProvider.userModel?.name ?? "User", style: const TextStyle(fontSize: 14)),
-                accountEmail: Text(userProvider.userModel?.phone ?? "", style: const TextStyle(fontSize: 12)),
+                accountName: Text(
+                  userProvider.userModel?.name ?? "User",
+                  style: const TextStyle(fontSize: 14),
+                ),
+                accountEmail: Text(
+                  userProvider.userModel?.email?.isNotEmpty == true
+                      ? userProvider.userModel!.email!
+                      : (userProvider.userModel?.phone ?? ""),
+                  style: const TextStyle(fontSize: 12),
+                ),
                 currentAccountPicture: const CircleAvatar(
                   backgroundColor: Colors.white,
                   child: Icon(Icons.person, size: 30, color: Colors.blue),
@@ -75,34 +88,51 @@ class _MainScreenState extends State<MainScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.history, size: 20),
-                title: const Text("Transaction History", style: TextStyle(fontSize: 13)),
+                title: const Text(
+                  "Transaction History",
+                  style: TextStyle(fontSize: 13),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const TransactionHistoryScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionHistoryScreen(),
+                    ),
                   );
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blue),
-                title: const Text("AI Assistant", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                leading: const Icon(
+                  Icons.chat_bubble_outline,
+                  size: 20,
+                  color: Colors.blue,
+                ),
+                title: const Text(
+                  "AI Assistant",
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ChatbotScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const ChatbotScreen(),
+                    ),
                   );
                 },
               ),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red, size: 20),
-                title: const Text("Logout", style: TextStyle(color: Colors.red, fontSize: 13)),
+                title: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.red, fontSize: 13),
+                ),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                   if (mounted) {
-                     Navigator.pop(context);
+                    Navigator.pop(context);
                   }
                 },
               ),
@@ -110,10 +140,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -131,10 +158,7 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(Icons.trending_up),
             label: "Trade",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );

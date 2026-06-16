@@ -1,5 +1,5 @@
 import 'package:dhukuti/auth/login_page.dart';
-
+import 'package:dhukuti/auth/signup_page.dart';
 import 'package:go_router/go_router.dart';
 import '../routes/app_routes.dart';
 import '../splash/splash_page.dart';
@@ -19,7 +19,8 @@ GoRouter createRouter(AuthState authState) {
         return AppRoutes.login;
       }
 
-      if (loggedIn && loggingIn) {
+      if (loggedIn &&
+          (loggingIn || state.matchedLocation == AppRoutes.signup)) {
         return AppRoutes.dashboard;
       }
 
@@ -40,8 +41,10 @@ GoRouter createRouter(AuthState authState) {
         path: AppRoutes.login,
         builder: (context, state) => const LoginPage(),
       ),
-
-
+      GoRoute(
+        path: AppRoutes.signup,
+        builder: (context, state) => const SignupPage(),
+      ),
       GoRoute(
         path: AppRoutes.dashboard,
         builder: (context, state) => const MainScreen(),

@@ -4,6 +4,7 @@ class UserModel {
   final String? name;
   final String? address;
   final String? email;
+  final String? gender;
   final String? photoUrl;
   final bool isAdmin;
   final DateTime createdAt;
@@ -24,6 +25,7 @@ class UserModel {
     this.photoUrl,
     this.isAdmin = false,
     required this.createdAt,
+    this.gender,
     this.verificationStatus = 'unverified',
     this.citizenshipFrontUrl,
     this.citizenshipBackUrl,
@@ -38,6 +40,7 @@ class UserModel {
       name: map['name'],
       address: map['address'],
       email: map['email'],
+      gender: map['gender'],
       photoUrl: map['photoUrl'],
       isAdmin: map['isAdmin'] ?? false,
       createdAt: map['createdAt'] != null
@@ -57,6 +60,7 @@ class UserModel {
       'name': name,
       'address': address,
       'email': email,
+      'gender': gender,
       'photoUrl': photoUrl,
       'isAdmin': isAdmin,
       'createdAt': createdAt.millisecondsSinceEpoch,
@@ -74,6 +78,7 @@ class UserModel {
     String? name,
     String? address,
     String? email,
+    String? gender,
     String? photoUrl,
     bool? isAdmin,
     DateTime? createdAt,
@@ -89,6 +94,7 @@ class UserModel {
       name: name ?? this.name,
       address: address ?? this.address,
       email: email ?? this.email,
+      gender: gender ?? this.gender,
       photoUrl: photoUrl ?? this.photoUrl,
       isAdmin: isAdmin ?? this.isAdmin,
       createdAt: createdAt ?? this.createdAt,
