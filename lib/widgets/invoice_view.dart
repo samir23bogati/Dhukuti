@@ -1,5 +1,5 @@
-import 'package:dhukuti/models/transaction_model.dart';
-import 'package:dhukuti/services/invoice_service.dart';
+import 'package:suvha_investor/models/transaction_model.dart';
+import 'package:suvha_investor/services/invoice_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -72,7 +72,7 @@ class _InvoiceViewState extends State<InvoiceView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "SUVHA INVESTMENT",
+                    "SUVHA INVESTOR",
                     style: TextStyle(
                       fontSize: screenWidth * 0.05,
                       fontWeight: FontWeight.w900,
@@ -161,7 +161,7 @@ class _InvoiceViewState extends State<InvoiceView> {
 
           const SizedBox(height: 30),
           Text(
-            "Thank you for choosing Suvha Investment!",
+            "Thank you for choosing Suvha Investor!",
             style: TextStyle(fontSize: screenWidth * 0.03, fontStyle: FontStyle.italic, color: Colors.grey),
           ),
         ],

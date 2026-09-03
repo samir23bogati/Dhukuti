@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: h * 0.012),
                     Text(
-                      'Suvha Investment',
+                      'Suvha Investor',
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colors.onSurface,

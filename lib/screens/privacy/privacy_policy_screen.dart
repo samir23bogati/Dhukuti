@@ -59,7 +59,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             _buildSection(
               '1. Information We Collect',
               '''
-Suvha Investment is a financial investment management app. We collect the following information to provide our services:
+Suvha Investor is a financial investment management app. We collect the following information to provide our services:
 
 • Account Information: Name, phone number, and email address provided during registration
 • Transaction Data: Investment amounts, transaction history, and portfolio holdings
@@ -100,7 +100,7 @@ We use the collected information solely for the following purposes:
             _buildSection(
               '4. Third-Party Services',
               '''
-Suvha Investment uses the following third-party services:
+Suvha Investor uses the following third-party services:
 
 • Firebase (Google): Backend services including Cloud Firestore for data storage and Firebase Authentication for user authentication
 
@@ -112,7 +112,7 @@ We do not share your personal or financial information with any third parties fo
             _buildSection(
               "5. Children's Privacy",
               '''
-Suvha Investment is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we will take steps to delete that information promptly. If you are a parent or guardian and believe your child has provided us with personal information, please contact us at support@dhukuti.com.
+Suvha Investor is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we will take steps to delete that information promptly. If you are a parent or guardian and believe your child has provided us with personal information, please contact us at support@dhukuti.com.
               ''',
               sectionTitleSize,
               bodySize,

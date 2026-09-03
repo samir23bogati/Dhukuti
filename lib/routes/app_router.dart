@@ -1,7 +1,7 @@
-import 'package:dhukuti/auth/email_verification_page.dart';
-import 'package:dhukuti/auth/login_page.dart';
-import 'package:dhukuti/auth/signup_page.dart';
-import 'package:dhukuti/screens/main_screen.dart';
+import 'package:suvha_investor/auth/email_verification_page.dart';
+import 'package:suvha_investor/auth/login_page.dart';
+import 'package:suvha_investor/auth/signup_page.dart';
+import 'package:suvha_investor/screens/main_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_state.dart';

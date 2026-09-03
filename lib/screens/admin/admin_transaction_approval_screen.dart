@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dhukuti/models/transaction_model.dart';
-import 'package:dhukuti/providers/market_provider.dart';
-import 'package:dhukuti/providers/user_provider.dart';
+import 'package:suvha_investor/models/transaction_model.dart';
+import 'package:suvha_investor/providers/market_provider.dart';
+import 'package:suvha_investor/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

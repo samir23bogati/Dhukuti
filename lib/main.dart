@@ -20,19 +20,19 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => MarketProvider()),
       ],
-      child: const DhukutiApp(),
+      child: const SuvhaInvestorApp(),
     ),
   );
 }
 
-class DhukutiApp extends StatefulWidget {
-  const DhukutiApp({super.key});
+class SuvhaInvestorApp extends StatefulWidget {
+  const SuvhaInvestorApp({super.key});
 
   @override
-  State<DhukutiApp> createState() => _DhukutiAppState();
+  State<SuvhaInvestorApp> createState() => _SuvhaInvestorAppState();
 }
 
-class _DhukutiAppState extends State<DhukutiApp> {
+class _SuvhaInvestorAppState extends State<SuvhaInvestorApp> {
   late final GoRouter _router;
 
   @override
@@ -48,7 +48,7 @@ class _DhukutiAppState extends State<DhukutiApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Suvha Investment',
+      title: 'Suvha Investor',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:dhukuti/models/transaction_model.dart';
+import 'package:suvha_investor/models/transaction_model.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -33,7 +33,7 @@ class InvoiceService {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        'SUVHA INVESTMENT',
+                        'SUVHA INVESTOR',
                         style: pw.TextStyle(
                           fontSize: 28,
                           fontWeight: pw.FontWeight.bold,
@@ -152,7 +152,7 @@ class InvoiceService {
               pw.SizedBox(height: 40),
               pw.Center(
                 child: pw.Text(
-                  'Thank you for choosing Suvha Investment!',
+                  'Thank you for choosing Suvha Investor!',
                   style: pw.TextStyle(
                     fontSize: 12,
                     fontStyle: pw.FontStyle.italic,
@@ -165,7 +165,7 @@ class InvoiceService {
                 child: pw.Column(
                   children: [
                     pw.Text(
-                      'Suvha Investment - Your Trusted Precious Metals Partner',
+                      'Suvha Investor - Your Trusted Precious Metals Partner',
                       style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
                     ),
                     pw.SizedBox(height: 4),
@@ -202,6 +202,6 @@ class InvoiceService {
   }
 
   Future<void> shareInvoice(File file) async {
-    await Share.shareXFiles([XFile(file.path)], text: 'Suvha Investment Invoice');
+    await Share.shareXFiles([XFile(file.path)], text: 'Suvha Investor Invoice');
   }
 }
