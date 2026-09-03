@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invoice SI-2026-0903 — BogatiX</title>
+  <style>
+    :root {
+      --ink: #12201a;
+      --muted: #5a6b63;
+      --line: #d7e0db;
+      --brand: #0b5f4b;
+      --brand-soft: #e8f4ef;
+      --accent: #c4a35a;
+      --paper: #ffffff;
+      --bg: #f3f6f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 24px auto;
+      background: var(--paper);
+      padding: 18mm 18mm 16mm;
+      box-shadow: 0 12px 40px rgba(18, 32, 26, 0.12);
+      position: relative;
+    }
+
+    .topbar {
+      height: 6px;
+      background: linear-gradient(90deg, var(--brand), #17856a 55%, var(--accent));
+      position: absolute;
+      left: 0; right: 0; top: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 8px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      color: var(--brand);
+      font-weight: 800;
+    }
+
+    .brand .tag {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .invoice-meta {
+      text-align: right;
+    }
+
+    .invoice-meta .label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .invoice-meta .number {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+
+    .meta-grid {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .meta-grid strong { color: var(--ink); font-weight: 600; }
+
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 22px 0 18px;
+    }
+
+    .card {
+      background: var(--brand-soft);
+      border: 1px solid #cfe3da;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 13.5px;
+    }
+
+    .card .name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12.5px;
+    }
+
+    thead th {
+      background: var(--brand);
+      color: #fff;
+      text-align: left;
+      padding: 10px 10px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    thead th:last-child,
+    tbody td:last-child,
+    tbody td.num,
+    thead th.num {
+      text-align: right;
+    }
+
+    tbody td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) { background: #fafcfb; }
+
+    .item-title { font-weight: 700; color: var(--ink); }
+    .item-scope { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+    .totals {
+      width: 280px;
+      margin-left: auto;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .totals .grand {
+      margin-top: 8px;
+      padding: 12px 14px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 15px;
+      border: none;
+    }
+
+    .words {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .words strong { color: var(--ink); }
+
+    .payment {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    .payment .box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .payment h3 {
+      margin: 0 0 10px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+
+    .payment dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 6px 10px;
+      font-size: 13px;
+    }
+
+    .payment dt { color: var(--muted); }
+    .payment dd { margin: 0; font-weight: 600; }
+
+    .terms {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sign {
+      margin-top: 28px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .sign .block {
+      width: 220px;
+      text-align: center;
+    }
+
+    .sign .line {
+      border-top: 1px solid var(--ink);
+      margin-top: 48px;
+      padding-top: 8px;
+      font-size: 12px;
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .actions {
+      width: 210mm;
+      margin: 0 auto 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .actions button {
+      border: none;
+      background: var(--brand);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .actions button.secondary {
+      background: #fff;
+      color: var(--brand);
+      border: 1px solid var(--brand);
+    }
+
+    @media print {
+      body { background: #fff; }
+      .actions { display: none; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        width: auto;
+        min-height: auto;
+      }
+      @page { size: A4; margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="actions">
+    <button class="secondary" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="sheet">
+    <div class="topbar"></div>
+
+    <div class="header">
+      <div class="brand">
+        <h1>BogatiX</h1>
+        <div class="tag">Software &amp; Mobile Development</div>
+        <div class="meta-grid" style="margin-top:12px">
+          <div><strong>PAN:</strong> 154099930</div>
+          <div><strong>Issued by:</strong> Samir Bogati</div>
+        </div>
+      </div>
+      <div class="invoice-meta">
+        <div class="label">Tax Invoice</div>
+        <div class="number">SI-2026-0903</div>
+        <div class="meta-grid">
+          <div><strong>Date:</strong> 3 September 2026</div>
+          <div><strong>Currency:</strong> NPR (Rs.)</div>
+          <div><strong>Status:</strong> Due on receipt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="parties">
+      <div class="card">
+        <h3>Bill From</h3>
+        <div class="name">BogatiX</div>
+        <p>Samir Bogati</p>
+        <p>PAN: 154099930</p>
+        <p>Kathmandu, Nepal</p>
+      </div>
+      <div class="card">
+        <h3>Bill To</h3>
+        <div class="name">Suvha Investor</div>
+        <p>Mobile application update &amp; release</p>
+        <p>Project: Android / iOS Flutter app</p>
+        <p>Package: com.dhukuti.app</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th>Description</th>
+          <th class="num" style="width:70px">Hours</th>
+          <th class="num" style="width:90px">Rate</th>
+          <th class="num" style="width:100px">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>
+            <div class="item-title">App rebranding</div>
+            <div class="item-scope">Logo, splash, login, launcher icons, display name → Suvha Investor; Dart package rename</div>
+          </td>
+          <td class="num">3.0</td>
+          <td class="num">1,200</td>
+          <td class="num">3,600</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>
+            <div class="item-title">Auth security hardening</div>
+            <div class="item-scope">Email verification gate, strong passwords, form validation, secure login/reset messaging, signup rollback</div>
+          </td>
+          <td class="num">4.0</td>
+          <td class="num">1,400</td>
+          <td class="num">5,600</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>
+            <div class="item-title">Play Store release compliance</div>
+            <div class="item-scope">Android API 36, non-debuggable release, minify/R8, ProGuard, signing via key.properties, AAB</div>
+          </td>
+          <td class="num">2.5</td>
+          <td class="num">1,300</td>
+          <td class="num">3,250</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>
+            <div class="item-title">Backend &amp; data safety</div>
+            <div class="item-scope">Firestore rules, KYC trading gate restore, remove unsafe profile consolidation</div>
+          </td>
+          <td class="num">2.0</td>
+          <td class="num">1,400</td>
+          <td class="num">2,800</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>
+            <div class="item-title">Live gold &amp; silver rates fix</div>
+            <div class="item-scope">Hamro Patro scraper rewrite for new page format; rates restored</div>
+          </td>
+          <td class="num">1.5</td>
+          <td class="num">1,200</td>
+          <td class="num">1,800</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>
+            <div class="item-title">Android 15 edge-to-edge</div>
+            <div class="item-scope">Native enableEdgeToEdge, Flutter system UI mode, SafeArea/theme updates</div>
+          </td>
+          <td class="num">1.0</td>
+          <td class="num">1,200</td>
+          <td class="num">1,200</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>
+            <div class="item-title">Build &amp; release support</div>
+            <div class="item-scope">CocoaPods fix, R8 Play Core rules, environment recovery, release notes</div>
+          </td>
+          <td class="num">1.0</td>
+          <td class="num">1,000</td>
+          <td class="num">1,000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="row"><span>Subtotal</span><span>Rs. 19,250</span></div>
+      <div class="row"><span>Discount</span><span>− Rs. 1,250</span></div>
+      <div class="grand"><span>Total Due</span><span>Rs. 18,000</span></div>
+    </div>
+
+    <div class="words">
+      <strong>Amount in words:</strong> Eighteen thousand Nepalese rupees only.
+    </div>
+
+    <div class="payment">
+      <div class="box">
+        <h3>Bank details</h3>
+        <dl>
+          <dt>Bank</dt><dd>Sanima Bank</dd>
+          <dt>Account name</dt><dd>Samir Bogati</dd>
+          <dt>Branch</dt><dd>Jamal, Biswojyoti Mall</dd>
+          <dt>Account No.</dt><dd>075011100002056</dd>
+          <dt>PAN</dt><dd>154099930</dd>
+        </dl>
+      </div>
+      <div class="box">
+        <h3>Terms</h3>
+        <div class="terms">
+          Payment due on receipt.<br />
+          This invoice covers development, debugging, and release readiness for the listed update cycle.<br />
+          Play Console / Firebase hosting fees are not included.
+        </div>
+      </div>
+    </div>
+
+    <div class="sign">
+      <div class="block">
+        <div class="line">
+          Authorized Signature<br />
+          <strong>BogatiX / Samir Bogati</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Thank you for your business.</span>
+      <span>Invoice SI-2026-0903 · BogatiX</span>
+    </div>
+  </div>
+</body>
+</html>
