@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,11 @@ import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Prefer edge-to-edge without coloring system bars (avoids deprecated
+  // Window.setStatusBarColor / setNavigationBarColor on Android 15+).
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   await Firebase.initializeApp();
   await FCMService().initNotifications();
 

@@ -46,39 +46,41 @@ class _SplashPageState extends State<SplashPage>
 
     return Scaffold(
       backgroundColor: colors.surface,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnim,
-          child: ScaleTransition(
-            scale: _scaleAnim,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/Suvhainvestments.png',
-                  width: w * 0.42,
-                  height: w * 0.42,
-                  fit: BoxFit.contain,
-                ),
-                SizedBox(height: h * 0.02),
-                Text(
-                  'Suvha Investor',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
-                    fontSize: w * 0.055,
+      body: SafeArea(
+        child: Center(
+          child: FadeTransition(
+            opacity: _fadeAnim,
+            child: ScaleTransition(
+              scale: _scaleAnim,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/images/Suvhainvestments.png',
+                    width: w * 0.42,
+                    height: w * 0.42,
+                    fit: BoxFit.contain,
                   ),
-                ),
-                SizedBox(height: h * 0.03),
-                SizedBox(
-                  width: w * 0.07,
-                  height: w * 0.07,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: colors.primary,
+                  SizedBox(height: h * 0.02),
+                  Text(
+                    'Suvha Investor',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                      fontSize: w * 0.055,
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: h * 0.03),
+                  SizedBox(
+                    width: w * 0.07,
+                    height: w * 0.07,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: colors.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
