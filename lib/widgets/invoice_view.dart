@@ -72,7 +72,7 @@ class _InvoiceViewState extends State<InvoiceView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "DHUKUTI",
+                    "SUVHA INVESTMENT",
                     style: TextStyle(
                       fontSize: screenWidth * 0.05,
                       fontWeight: FontWeight.w900,
@@ -161,7 +161,7 @@ class _InvoiceViewState extends State<InvoiceView> {
 
           const SizedBox(height: 30),
           Text(
-            "Thank you for choosing Dhukuti!",
+            "Thank you for choosing Suvha Investment!",
             style: TextStyle(fontSize: screenWidth * 0.03, fontStyle: FontStyle.italic, color: Colors.grey),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:dhukuti/auth/auth_state.dart';
 import 'package:dhukuti/providers/user_provider.dart';
 import 'package:dhukuti/screens/admin/admin_dashboard.dart';
 import 'package:dhukuti/screens/chatbot/chatbot_screen.dart';
@@ -6,7 +7,6 @@ import 'package:dhukuti/screens/home/home_tab.dart';
 import 'package:dhukuti/screens/portfolio/portfolio_tab.dart';
 import 'package:dhukuti/screens/profile/profile_tab.dart';
 import 'package:dhukuti/screens/trade/trade_tab.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -130,10 +130,7 @@ class _MainScreenState extends State<MainScreen> {
                   style: TextStyle(color: Colors.red, fontSize: 13),
                 ),
                 onTap: () async {
-                  await FirebaseAuth.instance.signOut();
-                  if (mounted) {
-                    Navigator.pop(context);
-                  }
+                  await context.read<AuthState>().signOut();
                 },
               ),
             ],

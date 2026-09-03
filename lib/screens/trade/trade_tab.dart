@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dhukuti/models/transaction_model.dart';
-import 'package:dhukuti/models/user_model.dart';
 import 'package:dhukuti/providers/market_provider.dart';
 import 'package:dhukuti/providers/user_provider.dart';
 import 'package:dhukuti/screens/kyc/kyc_screen.dart';
@@ -54,6 +53,12 @@ class _TradeTabState extends State<TradeTab> {
 
     final user = context.read<UserProvider>().userModel;
     if (user == null) return;
+    if (user.verificationStatus != 'verified') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Complete KYC verification before trading')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
     
@@ -154,7 +159,7 @@ class _TradeTabState extends State<TradeTab> {
     final currentPrice = _metalType == 'gold' ? goldPrice : silverPrice;
 
     final user = context.watch<UserProvider>().userModel;
-    final isVerified = true; // Temporarily bypassed for testing (no Storage)
+    final isVerified = user?.verificationStatus == 'verified';
 
     if (currentPrice == null) {
       return const Center(child: Text("Price currently unavailable"));
@@ -284,39 +289,60 @@ class _TradeTabState extends State<TradeTab> {
                     ],
                   ),
               ] else ...[
-                Container(
-                  padding: EdgeInsets.all(screenWidth * 0.05),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
-                    border: Border.all(color: Colors.blue.shade200),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(Icons.shield_outlined, size: screenWidth * 0.12, color: Colors.blue),
-                      SizedBox(height: screenHeight * 0.02),
-                      Text(
-                        "Verification Required",
-                        style: TextStyle(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+                Builder(
+                  builder: (context) {
+                    final colors = Theme.of(context).colorScheme;
+                    return Container(
+                      padding: EdgeInsets.all(screenWidth * 0.05),
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                        border: Border.all(color: colors.outlineVariant),
                       ),
-                      SizedBox(height: screenHeight * 0.012),
-                      Text(
-                        "You must complete your KYC verification to start trading Gold and Silver.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey, fontSize: screenWidth * 0.035),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            size: screenWidth * 0.12,
+                            color: colors.primary,
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          Text(
+                            "Verification Required",
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.012),
+                          Text(
+                            "You must complete your KYC verification to start trading Gold and Silver.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: colors.onSurfaceVariant,
+                              fontSize: screenWidth * 0.035,
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.025),
+                          FilledButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const KYCScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Verify Now",
+                              style: TextStyle(fontSize: screenWidth * 0.038),
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: screenHeight * 0.025),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const KYCScreen()),
-                          );
-                        },
-                        child: Text("Verify Now", style: TextStyle(fontSize: screenWidth * 0.038)),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ]
             ] else ...[

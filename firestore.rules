@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    function profileCreateValid() {
+      return request.resource.data.keys().hasAll([
+          'name', 'phone', 'email', 'gender', 'isAdmin', 'createdAt', 'verificationStatus'
+        ])
+        && request.resource.data.isAdmin == false
+        && request.resource.data.verificationStatus == 'unverified'
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.name is string;
+    }
+
+    function userCannotEscalate() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['isAdmin']);
+    }
+
+    function userVerificationUpdateAllowed() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['verificationStatus'])
+        || request.resource.data.verificationStatus == 'pending';
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && profileCreateValid();
+      allow update: if (isOwner(userId) && userCannotEscalate() && userVerificationUpdateAllowed())
+        || isAdmin();
+      allow delete: if isAdmin();
+
+      match /kyc/{docId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create, update: if isOwner(userId) || isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /transactions/{txId} {
+      allow read: if signedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /portfolios/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /market_settings/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

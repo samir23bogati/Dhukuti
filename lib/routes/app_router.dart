@@ -1,37 +1,51 @@
+import 'package:dhukuti/auth/email_verification_page.dart';
 import 'package:dhukuti/auth/login_page.dart';
 import 'package:dhukuti/auth/signup_page.dart';
+import 'package:dhukuti/screens/main_screen.dart';
 import 'package:go_router/go_router.dart';
+
+import '../auth/auth_state.dart';
 import '../routes/app_routes.dart';
 import '../splash/splash_page.dart';
-import '../auth/auth_state.dart';
-import 'package:dhukuti/screens/main_screen.dart';
 
 GoRouter createRouter(AuthState authState) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
     refreshListenable: authState,
-
     redirect: (context, state) {
-      final loggedIn = authState.isLoggedIn;
-      final loggingIn = state.matchedLocation == AppRoutes.login;
+      final phase = authState.phase;
+      final loc = state.matchedLocation;
 
-      if (!loggedIn && state.matchedLocation == AppRoutes.dashboard) {
-        return AppRoutes.login;
+      final isSplash = loc == AppRoutes.splash;
+      final isLogin = loc == AppRoutes.login;
+      final isSignup = loc == AppRoutes.signup;
+      final isVerify = loc == AppRoutes.verifyEmail;
+      final isAuthFlow = isLogin || isSignup;
+
+      if (phase == AuthPhase.initializing) {
+        return isSplash ? null : AppRoutes.splash;
       }
 
-      if (loggedIn &&
-          (loggingIn || state.matchedLocation == AppRoutes.signup)) {
-        return AppRoutes.dashboard;
-      }
+      switch (phase) {
+        case AuthPhase.signedOut:
+          if (isSplash) return AppRoutes.login;
+          if (isAuthFlow) return null;
+          return AppRoutes.login;
 
-      // 🚀 Skip splash if already logged in
-      if (loggedIn && state.matchedLocation == AppRoutes.splash) {
-        return AppRoutes.dashboard;
-      }
+        case AuthPhase.emailUnverified:
+          if (isVerify) return null;
+          return AppRoutes.verifyEmail;
 
-      return null;
+        case AuthPhase.signedIn:
+          if (isSplash || isAuthFlow || isVerify) {
+            return AppRoutes.dashboard;
+          }
+          return null;
+
+        case AuthPhase.initializing:
+          return AppRoutes.splash;
+      }
     },
-
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -44,6 +58,10 @@ GoRouter createRouter(AuthState authState) {
       GoRoute(
         path: AppRoutes.signup,
         builder: (context, state) => const SignupPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.verifyEmail,
+        builder: (context, state) => const EmailVerificationPage(),
       ),
       GoRoute(
         path: AppRoutes.dashboard,

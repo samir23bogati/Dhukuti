@@ -1,11 +1,11 @@
 {
-    "name": "dhukuti",
-    "short_name": "dhukuti",
+    "name": "Suvha Investment",
+    "short_name": "Suvha",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Suvha Investment - Gold and silver investment platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../routes/app_routes.dart';
 
+/// Brand splash only. Routing is handled by [AuthState] + GoRouter redirect.
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -22,20 +21,13 @@ class _SplashPageState extends State<SplashPage>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-    _scaleAnim = Tween(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-    _fadeAnim = Tween(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-
+    _scaleAnim = Tween(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    _fadeAnim = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
     _controller.forward();
-
-    Future.delayed(const Duration(seconds: 2), () {
-      context.go(AppRoutes.dashboard);
-    });
   }
 
   @override
@@ -46,7 +38,14 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final w = size.width;
+    final h = size.height;
+
     return Scaffold(
+      backgroundColor: colors.surface,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnim,
@@ -56,15 +55,28 @@ class _SplashPageState extends State<SplashPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
-                  'assets/images/dhukuti.png',
-                  width: 180,
-                  height: 180,
+                  'assets/images/Suvhainvestments.png',
+                  width: w * 0.42,
+                  height: w * 0.42,
                   fit: BoxFit.contain,
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Dhukuti',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                SizedBox(height: h * 0.02),
+                Text(
+                  'Suvha Investment',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colors.onSurface,
+                    fontSize: w * 0.055,
+                  ),
+                ),
+                SizedBox(height: h * 0.03),
+                SizedBox(
+                  width: w * 0.07,
+                  height: w * 0.07,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: colors.primary,
+                  ),
                 ),
               ],
             ),

@@ -165,6 +165,9 @@ class MarketProvider extends ChangeNotifier {
     required String metalType,
     required double quantityTola,
   }) async {
+    if (user.verificationStatus != 'verified') {
+      throw Exception('KYC verification required before trading');
+    }
     if (!isMarketOpen) throw Exception("Market is currently closed.");
     
     final price = metalType == 'gold' ? _currentGoldPrice : _currentSilverPrice;

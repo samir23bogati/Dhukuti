@@ -44,8 +44,32 @@ class _DhukutiAppState extends State<DhukutiApp> {
 
   @override
   Widget build(BuildContext context) {
+    const seed = Color(0xFF0B5F4B);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      title: 'Suvha Investment',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.light,
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+        ),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.dark,
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+        ),
+      ),
+      themeMode: ThemeMode.system,
       routerConfig: _router,
     );
   }

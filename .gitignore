@@ -47,3 +47,8 @@ app.*.map.json
 
 # Firebase configuration files
 /android/app/google-services.json
+
+# Android signing secrets (never commit)
+/android/key.properties
+/android/app/*.jks
+/android/app/*.keystore
