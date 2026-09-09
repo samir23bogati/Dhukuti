@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:suvha_investor/providers/market_provider.dart';
-import 'package:suvha_investor/screens/admin/admin_kyc_review_screen.dart';
-import 'package:suvha_investor/screens/admin/admin_transaction_approval_screen.dart';
+import 'package:suvha_investment/providers/market_provider.dart';
+import 'package:suvha_investment/screens/admin/admin_kyc_review_screen.dart';
+import 'package:suvha_investment/screens/admin/admin_transaction_approval_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

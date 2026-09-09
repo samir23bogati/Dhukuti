@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:suvha_investor/models/transaction_model.dart';
-import 'package:suvha_investor/providers/market_provider.dart';
-import 'package:suvha_investor/providers/user_provider.dart';
-import 'package:suvha_investor/screens/kyc/kyc_screen.dart';
+import 'package:suvha_investment/models/transaction_model.dart';
+import 'package:suvha_investment/providers/market_provider.dart';
+import 'package:suvha_investment/providers/user_provider.dart';
+import 'package:suvha_investment/screens/kyc/kyc_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

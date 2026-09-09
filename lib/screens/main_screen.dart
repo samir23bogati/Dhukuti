@@ -1,12 +1,12 @@
-import 'package:suvha_investor/auth/auth_state.dart';
-import 'package:suvha_investor/providers/user_provider.dart';
-import 'package:suvha_investor/screens/admin/admin_dashboard.dart';
-import 'package:suvha_investor/screens/chatbot/chatbot_screen.dart';
-import 'package:suvha_investor/screens/history/transaction_history_screen.dart';
-import 'package:suvha_investor/screens/home/home_tab.dart';
-import 'package:suvha_investor/screens/portfolio/portfolio_tab.dart';
-import 'package:suvha_investor/screens/profile/profile_tab.dart';
-import 'package:suvha_investor/screens/trade/trade_tab.dart';
+import 'package:suvha_investment/auth/auth_state.dart';
+import 'package:suvha_investment/providers/user_provider.dart';
+import 'package:suvha_investment/screens/admin/admin_dashboard.dart';
+import 'package:suvha_investment/screens/chatbot/chatbot_screen.dart';
+import 'package:suvha_investment/screens/history/transaction_history_screen.dart';
+import 'package:suvha_investment/screens/home/home_tab.dart';
+import 'package:suvha_investment/screens/portfolio/portfolio_tab.dart';
+import 'package:suvha_investment/screens/profile/profile_tab.dart';
+import 'package:suvha_investment/screens/trade/trade_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

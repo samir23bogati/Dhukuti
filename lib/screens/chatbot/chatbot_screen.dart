@@ -12,13 +12,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<Map<String, String>> _messages = [
     {
       'role': 'assistant',
-      'content': 'Hello! I am the Suvha Investor Assistant. How can I help you with your gold and silver investments today?'
+      'content': 'Hello! I am the Suvha Investment Assistant. How can I help you with your gold and silver investments today?'
     },
   ];
 
   final String _knowledgeBase = """
-Suvha Investor AI Assistant Knowledge Base:
-- Identity: You are the Suvha Investor Assistant. You help users navigate gold/silver investments in Nepal.
+Suvha Investment AI Assistant Knowledge Base:
+- Identity: You are the Suvha Investment Assistant. You help users navigate gold/silver investments in Nepal.
 - Products: 
   * 24K Gold: 99.9% pure physical gold.
   * .999 Fine Silver: High-purity investment-grade silver.
@@ -59,7 +59,7 @@ Suvha Investor AI Assistant Knowledge Base:
       response = "We offer 24K (99.9%) pure physical Gold and .999 Fine Silver. You can buy and sell these metals digitally, and they are backed 1:1 by physical reserves in our vault.";
     } 
     else if (lowerText.contains('fee') || lowerText.contains('charge') || lowerText.contains('cost') || lowerText.contains('tax') || lowerText.contains('commission')) {
-      response = "Suvha Investor charges a 1% service fee on every buy and sell transaction. This covers the cost of secure vaulting, insurance, and platform operations.";
+      response = "Suvha Investment charges a 1% service fee on every buy and sell transaction. This covers the cost of secure vaulting, insurance, and platform operations.";
     } 
     else if (lowerText.contains('verify') || lowerText.contains('kyc') || lowerText.contains('approve') || lowerText.contains('document') || lowerText.contains('citizenship') || lowerText.contains('selfie')) {
       response = "To start trading, you must complete KYC verification in the 'Profile' tab. You'll need to upload the front and back of your Citizenship ID and a selfie holding your ID. Our team usually approves it within 24-48 hours.";
@@ -90,7 +90,7 @@ Suvha Investor AI Assistant Knowledge Base:
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Suvha Investor Assistant"),
+        title: const Text("Suvha Investment Assistant"),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),

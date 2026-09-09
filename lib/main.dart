@@ -26,19 +26,19 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => MarketProvider()),
       ],
-      child: const SuvhaInvestorApp(),
+      child: const SuvhaInvestmentApp(),
     ),
   );
 }
 
-class SuvhaInvestorApp extends StatefulWidget {
-  const SuvhaInvestorApp({super.key});
+class SuvhaInvestmentApp extends StatefulWidget {
+  const SuvhaInvestmentApp({super.key});
 
   @override
-  State<SuvhaInvestorApp> createState() => _SuvhaInvestorAppState();
+  State<SuvhaInvestmentApp> createState() => _SuvhaInvestmentAppState();
 }
 
-class _SuvhaInvestorAppState extends State<SuvhaInvestorApp> {
+class _SuvhaInvestmentAppState extends State<SuvhaInvestmentApp> {
   late final GoRouter _router;
 
   @override
@@ -54,7 +54,7 @@ class _SuvhaInvestorAppState extends State<SuvhaInvestorApp> {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Suvha Investor',
+      title: 'Suvha Investment',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

@@ -1,11 +1,11 @@
 {
-    "name": "Suvha Investor",
-    "short_name": "Suvha Investor",
+    "name": "Suvha Investment",
+    "short_name": "Suvha Investment",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Suvha Investor - Gold and silver investment platform",
+    "description": "Suvha Investment - Gold and silver investment platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

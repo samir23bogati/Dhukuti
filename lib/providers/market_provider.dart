@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:suvha_investor/models/user_model.dart';
-import 'package:suvha_investor/models/portfolio_model.dart';
-import 'package:suvha_investor/models/transaction_model.dart';
-import 'package:suvha_investor/services/price_service.dart';
-import 'package:suvha_investor/utils/app_utils.dart';
+import 'package:suvha_investment/models/user_model.dart';
+import 'package:suvha_investment/models/portfolio_model.dart';
+import 'package:suvha_investment/models/transaction_model.dart';
+import 'package:suvha_investment/services/price_service.dart';
+import 'package:suvha_investment/utils/app_utils.dart';
 import 'package:flutter/foundation.dart';
 
 enum MarketStatus { open, closed, holiday }

@@ -63,7 +63,7 @@ class _SplashPageState extends State<SplashPage>
                   ),
                   SizedBox(height: h * 0.02),
                   Text(
-                    'Suvha Investor',
+                    'Suvha Investment',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colors.onSurface,

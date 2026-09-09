@@ -1,9 +1,9 @@
-import 'package:suvha_investor/screens/kyc/kyc_screen.dart';
-import 'package:suvha_investor/screens/privacy/privacy_policy_screen.dart';
+import 'package:suvha_investment/screens/kyc/kyc_screen.dart';
+import 'package:suvha_investment/screens/privacy/privacy_policy_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:suvha_investor/models/user_model.dart';
-import 'package:suvha_investor/providers/user_provider.dart';
+import 'package:suvha_investment/models/user_model.dart';
+import 'package:suvha_investment/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import '../../routes/app_routes.dart';
 
