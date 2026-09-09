@@ -3,7 +3,7 @@ description: "Suvha Investment - Gold and silver investment platform"
 
 publish_to: 'none' 
 
-version: 2.0.6+8
+version: 2.0.7+9
 
 environment:
   sdk: ^3.8.1 
