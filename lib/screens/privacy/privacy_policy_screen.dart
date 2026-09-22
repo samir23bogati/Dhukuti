@@ -8,7 +8,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = screenHeight < 700;
-    
+
     final horizontalPadding = screenWidth * 0.04;
     final sectionSpacing = isSmallScreen ? 16.0 : 24.0;
     final titleSize = screenWidth < 350 ? 20.0 : 24.0;
@@ -16,10 +16,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     final bodySize = screenWidth < 350 ? 13.0 : 14.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Privacy Policy'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Privacy Policy'), centerTitle: true),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding,
@@ -31,10 +28,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  Icon(
-                    Icons.privacy_tip_outlined,
-                    size: screenWidth * 0.15,
-                    color: Colors.teal,
+                  Image.asset(
+                    'assets/images/Suvhainvestments.png',
+                    width: screenWidth * 0.4,
+                    fit: BoxFit.contain,
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Text(
@@ -112,7 +109,7 @@ We do not share your personal or financial information with any third parties fo
             _buildSection(
               "5. Children's Privacy",
               '''
-Suvha Investment is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we will take steps to delete that information promptly. If you are a parent or guardian and believe your child has provided us with personal information, please contact us at support@dhukuti.com.
+Suvha Investment is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we will take steps to delete that information promptly. If you are a parent or guardian and believe your child has provided us with personal information, please contact us at support@suvhainvestment.com.
               ''',
               sectionTitleSize,
               bodySize,
@@ -130,7 +127,7 @@ We may update this Privacy Policy from time to time to reflect changes in our pr
               '''
 If you have any questions about this Privacy Policy or our data practices, please contact us at:
 
-support@dhukuti.com
+support@suvhainvestment.com
               ''',
               sectionTitleSize,
               bodySize,
@@ -141,10 +138,7 @@ support@dhukuti.com
               padding: EdgeInsets.all(screenWidth * 0.04),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.green.shade50,
-                    Colors.green.shade100,
-                  ],
+                  colors: [Colors.green.shade50, Colors.green.shade100],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -180,10 +174,7 @@ support@dhukuti.com
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.015),
-                  _buildComplianceItem(
-                    'No third-party data sharing',
-                    bodySize,
-                  ),
+                  _buildComplianceItem('No third-party data sharing', bodySize),
                   _buildComplianceItem(
                     "Children's privacy addressed",
                     bodySize,
@@ -202,7 +193,12 @@ support@dhukuti.com
     );
   }
 
-  Widget _buildSection(String title, String content, double titleSize, double bodySize) {
+  Widget _buildSection(
+    String title,
+    String content,
+    double titleSize,
+    double bodySize,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -235,10 +231,7 @@ support@dhukuti.com
           Icon(Icons.check_circle, color: Colors.green.shade600, size: 18),
           SizedBox(width: 8),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: fontSize),
-            ),
+            child: Text(text, style: TextStyle(fontSize: fontSize)),
           ),
         ],
       ),
