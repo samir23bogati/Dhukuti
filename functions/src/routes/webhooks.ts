@@ -3,6 +3,7 @@ import { loadConfig } from '../config';
 import { loadPrivateKey } from '../signing';
 import { ConnectIPSTxnDetailsClient, isCreditSuccess } from '../connectips';
 import { getTransactionData, updatePaymentStatus } from '../firestore';
+import { deepLink } from './test';
 
 export const webhooksRouter = Router();
 
@@ -45,17 +46,34 @@ async function settle(referenceId: string): Promise<string> {
 webhooksRouter.get('/redirect', async (req, res) => {
   const txnId = String(req.query.TXNID ?? req.query.txnId ?? '');
   const config = loadConfig();
-  let target = config.failureUrl || '/';
-  if (txnId) {
-    try {
-      target = (await settle(txnId)) === 'succeeded'
-        ? config.successUrl || '/'
-        : config.failureUrl || '/';
-    } catch (e) {
-      console.error(`settle failed for ${txnId}:`, e);
-    }
+
+  // Bare GET (no TXNID) — what NCHL/reC see when they open the URL to check
+  // it's reachable. Render an informational page instead of bouncing to a 404.
+  if (!txnId) {
+    res.set('Content-Type', 'text/html; charset=utf-8').send(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ConnectIPS Redirect Endpoint</title>
+<style>body{font-family:system-ui,sans-serif;background:#0B5F4B;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.card{background:#fff;border-radius:16px;padding:28px 32px;max-width:520px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;color:#0B5F4B;font-size:20px} p{color:#444;margin:6px 0}
+code{background:#eef4f1;border-radius:6px;padding:2px 6px;font-size:13px;word-break:break-all}</style>
+</head><body><div class="card">
+<h1>ConnectIPS redirect endpoint is live.</h1>
+<p>This URL is registered with NCHL as the success/failure redirect for <b>Suvha Investment</b>.</p>
+<p>ConnectIPS appends <code>?TXNID=&lt;transaction-id&gt;</code> and bounces the payer's
+browser here; we then validate the payment and return the app to its payment status screen.</p>
+<p><b>Reachable via:</b> <code>${req.protocol}://${req.get('host')}${req.originalUrl}</code></p>
+</div></body></html>`);
+    return;
   }
-  res.redirect(302, target);
+
+  try {
+    const result = (await settle(txnId)) === 'succeeded' ? 'success' : 'failure';
+    res.redirect(302, deepLink(txnId, result));
+  } catch (e) {
+    console.error(`settle failed for ${txnId}:`, e);
+    res.redirect(302, deepLink(txnId, 'failure'));
+  }
 });
 
 /**
