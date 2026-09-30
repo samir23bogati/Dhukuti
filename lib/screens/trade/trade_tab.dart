@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:suvha_investment/models/transaction_model.dart';
 import 'package:suvha_investment/providers/market_provider.dart';
+import 'package:suvha_investment/providers/payment_provider.dart';
 import 'package:suvha_investment/providers/user_provider.dart';
 import 'package:suvha_investment/screens/kyc/kyc_screen.dart';
+import 'package:suvha_investment/screens/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -63,16 +65,29 @@ class _TradeTabState extends State<TradeTab> {
     setState(() => _isLoading = true);
     
     try {
-      await context.read<MarketProvider>().executeTrade(
+      final transaction = await context.read<MarketProvider>().executeTrade(
         user: user,
         type: type,
         metalType: _metalType,
         quantityTola: qty,
       );
-      if (mounted) {
-        _showPendingSuccessDialog(type);
+
+      if (!mounted) return;
+
+      // BUY goes through ConnectIPS when the payment backend is configured for
+      // this build; otherwise (and always for SELL) the legacy manual flow runs.
+      final payments = context.read<PaymentProvider>();
+      final usePayment = type == TransactionType.buy && payments.isConfigured;
+
+      if (usePayment) {
         _quantityController.clear();
+        final ok = await _startPayment(transaction);
+        if (!ok) _showPendingSuccessDialog(type);
+        return;
       }
+
+      _showPendingSuccessDialog(type);
+      _quantityController.clear();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -80,6 +95,26 @@ class _TradeTabState extends State<TradeTab> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Starts the ConnectIPS flow for the just-created BUY transaction and
+  /// presents the payment screen. Returns false if payment couldn't start so
+  /// the caller can fall back to the legacy manual dialog.
+  Future<bool> _startPayment(TransactionModel transaction) async {
+    final payment = context.read<PaymentProvider>();
+    try {
+      await payment.startBuyPayment(transaction);
+    } catch (_) {
+      return false;
+    }
+    if (!mounted) return false;
+
+    final navigated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => PaymentScreen(transaction: transaction)),
+    );
+    payment.reset();
+    return navigated ?? true;
   }
 
   void _showPendingSuccessDialog(TransactionType type) {

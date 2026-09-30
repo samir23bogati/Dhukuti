@@ -4,4 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Debug only: allow plain-HTTP to the local payment backend emulator
+         (10.0.2.2 / LAN IP) so the ConnectIPS test flow works on device. -->
+    <application android:usesCleartextTraffic="true"/>
 </manifest>

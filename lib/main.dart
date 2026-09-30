@@ -7,6 +7,7 @@ import 'routes/app_router.dart';
 import 'auth/auth_state.dart';
 import 'providers/user_provider.dart';
 import 'providers/market_provider.dart';
+import 'providers/payment_provider.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
@@ -25,6 +26,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthState()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => MarketProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
       ],
       child: const SuvhaInvestmentApp(),
     ),

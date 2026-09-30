@@ -52,3 +52,13 @@ app.*.map.json
 /android/key.properties
 /android/app/*.jks
 /android/app/*.keystore
+
+# Payment gateway secrets (never commit)
+# NPI/CREDITOR PKCS#12 signing certs, environment files, gateway API keys
+*.pfx
+*.p12
+*.pem
+.env
+.env.*
+!.env.example
+functions/secrets/

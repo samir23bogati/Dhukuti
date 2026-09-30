@@ -159,7 +159,7 @@ class MarketProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> executeTrade({
+  Future<TransactionModel> executeTrade({
     required UserModel user,
     required TransactionType type,
     required String metalType,
@@ -197,6 +197,7 @@ class MarketProvider extends ChangeNotifier {
     );
 
     await FirebaseFirestore.instance.collection('transactions').doc(transactionId).set(transaction.toMap());
+    return transaction;
   }
 
   Future<void> approveTransaction(String transactionId, String adminId) async {
