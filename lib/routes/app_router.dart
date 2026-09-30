@@ -2,6 +2,7 @@ import 'package:suvha_investment/auth/email_verification_page.dart';
 import 'package:suvha_investment/auth/login_page.dart';
 import 'package:suvha_investment/auth/signup_page.dart';
 import 'package:suvha_investment/screens/main_screen.dart';
+import 'package:suvha_investment/screens/payment/payment_status_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_state.dart';
@@ -66,6 +67,15 @@ GoRouter createRouter(AuthState authState) {
       GoRoute(
         path: AppRoutes.dashboard,
         builder: (context, state) => const MainScreen(),
+      ),
+      // Return path for ConnectIPS: suvhaval://payment/<txnId>?status=...
+      // (also reachable as /payment/<txnId> from an in-app WebView).
+      GoRoute(
+        path: AppRoutes.paymentStatus,
+        builder: (context, state) => PaymentStatusScreen(
+          txnId: state.pathParameters['txnId']!,
+          statusFromLink: state.uri.queryParameters['status'],
+        ),
       ),
     ],
   );

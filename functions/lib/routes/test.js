@@ -30,30 +30,57 @@ exports.testRouter.get('/pay/:paymentId', async (req, res) => {
         minimumFractionDigits: 2,
     });
     const base = (0, config_1.loadConfig)().testBaseUrl;
+    const meta = `<meta name="viewport" content="width=device-width, initial-scale=1">`;
     res.set('Content-Type', 'text/html; charset=utf-8').send(`<!doctype html>
 <html lang="en">
-<head><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ConnectIPS (TEST)</title>
+<head>${meta}
+<title>ConnectIPS · Test</title>
 <style>
-  body{font-family:system-ui,-apple-system,sans-serif;background:#f4f5f7;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-  .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:32px;max-width:380px;width:100%;text-align:center}
-  h2{color:#0B5F4B;margin-top:0} .amt{font-size:26px;font-weight:700;color:#111}
-  .gp{font-size:12px;color:#888;margin:6px 0 22px}
-  .row{display:flex;gap:12px;margin-top:8px}
-  button{flex:1;border:0;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;color:#fff}
-  .ok{background:#22a06b} .no{background:#e5484d}
-  .note{margin-top:18px;font-size:11px;color:#999}
+  :root{--g:#0B5F4B;--g2:#15805f;--ink:#11231c;--mut:#717d78;--bg:#eceef0;--card:#ffffff;--err:#e5484d;--ok:#22a06b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);
+       display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--ink)}
+  .wrap{width:100%;max-width:400px;padding:16px}
+  .bar{background:linear-gradient(135deg,var(--g),var(--g2));border-radius:18px 18px 0 0;padding:18px 22px;color:#fff;
+       display:flex;align-items:center;gap:10px}
+  .bar .dot{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .bar h1{font-size:15px;font-weight:700;letter-spacing:.2px}
+  .bar small{display:block;font-weight:400;opacity:.8;font-size:11px}
+  .card{background:var(--card);border-radius:0 0 18px 18px;padding:24px 22px;box-shadow:0 12px 30px rgba(17,35,28,.10)}
+  .amt{font-size:30px;font-weight:800;color:var(--g)}
+  .lbl{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+  .row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #eef1ef;padding:10px 0}
+  .row:last-of-type{border-bottom:0}
+  .row .v{font-weight:600;color:var(--ink);text-align:right;word-break:break-all}
+  .tag{display:inline-block;background:#eaf6f0;color:var(--g);font-size:11px;font-weight:700;
+       border-radius:999px;padding:5px 10px;margin-bottom:14px}
+  button{flex:1;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;color:#fff}
+  .btns{display:flex;gap:12px;margin-top:18px}
+  .ok{background:var(--ok)} .no{background:var(--err)}
+  button:active{transform:scale(.98)}
+  .note{margin-top:16px;text-align:center;font-size:11px;color:#9aa49f}
+  @media (max-width:340px){.btns{flex-direction:column}.amt{font-size:24px}}
 </style></head>
 <body>
-  <div class="card">
-    <h2>ConnectIPS &middot; SIMULATION</h2>
-    <div class="amt">NPR ${amount}</div>
-    <div class="gp">TXNID: ${paymentId}</div>
-    <form method="POST" action="${base}/v1/test/complete/${paymentId}" class="row">
-      <button type="submit" name="result" value="success" class="ok">Simulate Success</button>
-      <button type="submit" name="result" value="failure" class="no">Simulate Failure</button>
-    </form>
-    <div class="note">Test page only — replaces the real ConnectIPS login while NPI_MODE=test.</div>
+  <div class="wrap">
+    <div class="bar">
+      <span class="dot">C</span>
+      <div><h1>ConnectIPS Simulator</h1><small>Test environment · Suvha Investment</small></div>
+    </div>
+    <div class="card">
+      <span class="tag">TEST ONLY</span>
+      <div class="lbl">Amount</div>
+      <div class="amt">NPR ${amount}</div>
+      <div style="margin-top:16px">
+        <div class="row"><span class="lbl">TXN ID</span><span class="v">${paymentId}</span></div>
+        <div class="row"><span class="lbl">Currency</span><span class="v">NPR</span></div>
+      </div>
+      <form method="POST" action="${base}/v1/test/complete/${paymentId}" class="btns">
+        <button type="submit" name="result" value="success" class="ok">Simulate Success</button>
+        <button type="submit" name="result" value="failure" class="no">Simulate Failure</button>
+      </form>
+      <div class="note">Simulated page — real ConnectIPS login appears when NPI_MODE=live</div>
+    </div>
   </div>
 </body></html>`);
 });

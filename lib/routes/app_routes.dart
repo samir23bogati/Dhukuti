@@ -4,4 +4,5 @@ class AppRoutes {
   static const signup = '/signup';
   static const verifyEmail = '/verify-email';
   static const dashboard = '/dashboard';
+  static const paymentStatus = '/payment/:txnId';
 }
