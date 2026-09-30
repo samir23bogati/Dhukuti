@@ -50,6 +50,10 @@ webhooksRouter.get('/redirect', async (req, res) => {
   // Bare GET (no TXNID) — what NCHL/reC see when they open the URL to check
   // it's reachable. Render an informational page instead of bouncing to a 404.
   if (!txnId) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.get('host') || 'localhost';
+    const project = process.env.GCLOUD_PROJECT || 'dhukuti-1e030';
+    const canonical = `${proto}://${host}/${project}/asia-south1/npi/webhooks/redirect`;
     res.set('Content-Type', 'text/html; charset=utf-8').send(`<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>ConnectIPS Redirect Endpoint</title>
@@ -62,7 +66,7 @@ code{background:#eef4f1;border-radius:6px;padding:2px 6px;font-size:13px;word-br
 <p>This URL is registered with NCHL as the success/failure redirect for <b>Suvha Investment</b>.</p>
 <p>ConnectIPS appends <code>?TXNID=&lt;transaction-id&gt;</code> and bounces the payer's
 browser here; we then validate the payment and return the app to its payment status screen.</p>
-<p><b>Reachable via:</b> <code>${req.protocol}://${req.get('host')}${req.originalUrl}</code></p>
+<p><b>Reachable via:</b> <code>${canonical}</code></p>
 </div></body></html>`);
     return;
   }
